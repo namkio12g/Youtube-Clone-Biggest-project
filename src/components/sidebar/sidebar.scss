@@ -1,0 +1,64 @@
+@import '../../base';
+
+.sidebar{
+    color: $text-color;
+    background-color: $black-secondary;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    top: 0;
+    position: fixed;
+    flex-direction: column;
+    width:90px;
+    z-index: 5;
+    padding: 2rem 0;
+    transition: all 0.2s ease;
+    span{
+        
+        display: none;
+    }
+    &.active{
+        width: 190px;
+            span{
+                margin-left: 1.5rem;
+                display: block;
+            }
+        }
+    img{
+        width: 2.6rem;
+        height: 2.6rem;
+        border-radius: 50%;
+        object-fit: contain;
+        background-color: white;
+
+    }
+    hr{
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+    .link-section{
+        background-color: transparent;
+         li{    
+            display: flex;
+            align-items: center;
+            list-style: none;
+            background-color: transparent;
+            cursor: pointer;
+            padding: 1rem 1.6rem ;
+
+            & > *{
+                background-color: transparent;
+
+            }
+            &:hover{
+                color: $black-primary; 
+                background-color: #e00640;
+               
+         
+            }
+           
+         
+        }
+    }
+   
+}
