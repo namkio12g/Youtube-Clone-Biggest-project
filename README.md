@@ -13,8 +13,8 @@ This Readme shows you what i have been doing
 
 ## day 25/09-7/10
 - After long day fighting with my mental issue, i assume that i've only used 50% times of these days.Eventually i've done 90% of front ends
-- [Liked videos](public/images/video-like.jpg)
-- [Subcriptions](public/images/subcriptions.jpg)
-- [history](public/images/history.jpg)
+- [Liked videos](public/images/video-like.png)
+- [Subcriptions](public/images/subcriptions.png)
+- [history](public/images/history.png)
 - [channel](public/images/channel.jpg)
-- [video manager](public/images/video-manager.jpg)
+- [video manager](public/images/vipng-manager.png)
