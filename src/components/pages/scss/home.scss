@@ -1,0 +1,78 @@
+
+@import '../../../base';
+.app_container{
+    // display: flex;
+    margin-left: 90px;
+    transition: all 0.2s ease;
+    padding: 2rem;
+    &.sidebar-active{
+        margin-left: 190px;
+    }
+}
+
+.home-screen{
+    .videos-section{
+        margin-top: 3rem;
+    }
+   .category-carousel{
+        .title{
+            display: flex;
+            align-items: center;
+            color: $text-color;
+            span{
+                margin-left: 1rem;
+                font-size: 1.5rem;
+                font-weight: 600;
+                font-family: "Poppins",sans-serif;
+            }
+        }
+        .carousel{
+            width: 100%;
+            overflow: hidden;
+            margin-top: 3rem;
+            button{
+                background-color: #878787;
+                border-radius: 10%;
+                z-index: 1;
+                &::before{
+                    color: #1a202d;
+                    font-weight: 800;
+                    
+                }
+                &:hover{
+                    background-image:linear-gradient(to right,#ed213e 70%,#f39b65 100%);
+                    box-shadow: $red-shadow;
+                    &::before{
+                        color: $text-color;
+
+                    }
+                }
+            }
+            .item{
+                padding: 1.5rem 2.5rem;
+                font-family: "Poppins",sans-serif;
+                font-size: 1rem;
+                text-align: center;
+                white-space: nowrap;
+                cursor: pointer;
+                font-weight: 500;
+                color: $text-color;
+                margin: 0 1rem;
+                border: 1px solid #292929;
+                border-radius: 0.6rem;
+                background-color:#1a1c1e ;
+                &:hover{
+                    background-color: $red-priamry;
+                    color:$black-primary;
+                    box-shadow: $red-shadow;
+                }
+            }
+        }
+   } 
+}
+@media only screen and (max-width:$breakpoint-md) {
+.app_container{
+    margin-left: 0 !important;
+  
+}
+}

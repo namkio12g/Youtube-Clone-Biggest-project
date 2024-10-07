@@ -199,8 +199,10 @@ const VideoPlayer = ({src})=>{
 
 
         return () => {
-        videoWrapperRef.current.removeEventListener('mousemove', handleUserActivity);
-        videoWrapperRef.current.removeEventListener('touchmove', handleUserActivity);
+        if(videoWrapperRef.current){
+            videoWrapperRef.current.removeEventListener('mousemove', handleUserActivity);
+            videoWrapperRef.current.removeEventListener('touchmove', handleUserActivity);
+        }
         document.removeEventListener('click', handleClickOutside);
         clearTimeout(hideControlsTimeout);
       
