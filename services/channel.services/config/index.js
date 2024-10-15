@@ -17,6 +17,8 @@ module.exports={
     JWTSECRETKEY: process.env.JWTSECRETKEY,
     EXCHANGE_NAME: process.env.EXCHANGE_NAME,
     RABBITMQ_URL: process.env.RABBITMQ_URL,
-    CHANNEL_SERVICE: process.env.CHANNEL_SERVICE
+    CHANNEL_SERVICE: process.env.CHANNEL_SERVICE,
+    REPLY_QUEUE: process.env.REPLY_QUEUE
+
 
 }

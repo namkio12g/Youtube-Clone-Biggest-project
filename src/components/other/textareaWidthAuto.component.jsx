@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 
-const AutoResizeTextarea = ({placeholder,title,fontSize}) => {
-  const [value, setValue] = useState("");
+const AutoResizeTextarea = ({placeholder,title,fontSize,txtAreaRef,text="",nameInp}) => {
+  const [value, setValue] = useState(text);
   const textareaRef = useRef(null);
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"; 
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`; // 
+    if (txtAreaRef.current) {
+      txtAreaRef.current.style.height = "auto"; 
+      txtAreaRef.current.style.height = `${txtAreaRef.current.scrollHeight}px`; // 
     }
   }, [value]); 
 
@@ -19,7 +19,8 @@ const AutoResizeTextarea = ({placeholder,title,fontSize}) => {
     <>
         <div className="custom-texarea-box position-relative">
         <textarea className="custom-textarea"
-            ref={textareaRef}
+            ref={txtAreaRef}
+            name={nameInp}
             value={value}
             onChange={handleChange}
             placeholder={placeholder}

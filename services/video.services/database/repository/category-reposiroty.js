@@ -3,7 +3,7 @@ const categoryModel = require('../models/category.model.js');
 class categoryRepository {
     async createCategory(title, description) {
         try {
-            const newCategory=new categoryModel({
+            const newCategory=await new categoryModel({
                 title:title,
                 description:description
             })
@@ -53,6 +53,16 @@ class categoryRepository {
          }
 
      }
+
+     async getCategories(status="active") {
+         try {
+             const find = {status:status,delete:false}
+             const categories = await categoryModel.find(find)
+             return categories;
+         } catch (error) {
+             throw error;
+         }
+     }
      //find categories
 
      async findCategories(status,title){
@@ -71,3 +81,4 @@ class categoryRepository {
         }
      }
 }   
+module.exports=categoryRepository;

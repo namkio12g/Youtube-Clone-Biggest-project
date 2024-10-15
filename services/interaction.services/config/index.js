@@ -11,4 +11,9 @@ module.exports={
 
     DATABASE_URL: process.env.MONGODB_URL,
     PORT:process.env.PORT,
+    JWTSECRETKEY: process.env.JWTSECRETKEY,
+    EXCHANGE_NAME: process.env.EXCHANGE_NAME,
+    RABBITMQ_URL: process.env.RABBITMQ_URL,
+    INTERACTION_SERVICE: process.env.CHANNEL_SERVICE,
+    REPLY_QUEUE: process.env.REPLY_QUEUE
 }

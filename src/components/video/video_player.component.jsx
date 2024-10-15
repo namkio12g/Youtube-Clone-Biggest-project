@@ -1,22 +1,17 @@
-import {React,useState,useRef,useEffect} from "react";
+import React,{useState,useRef,useEffect} from "react";
+
 
 import { MdOutlineRemoveRedEye } from "react-icons/md";        
         
-import { FaPlay } from "react-icons/fa";
-import { FaPause } from "react-icons/fa";
-import { HiSpeakerWave } from "react-icons/hi2";
-import { HiSpeakerXMark } from "react-icons/hi2";
+import { FaPlay,FaBackward,FaPause,FaForward } from "react-icons/fa";
+import { HiSpeakerWave,HiSpeakerXMark} from "react-icons/hi2";
 import { HiDotsHorizontal } from "react-icons/hi";
-import { MdSlowMotionVideo } from "react-icons/md";
+import { MdSlowMotionVideo,MdHighQuality, MdFullscreen   } from "react-icons/md";
 import { TbPictureInPictureFilled } from "react-icons/tb";
-import { MdFullscreen } from "react-icons/md";
-import { FaForward } from "react-icons/fa";
-import { FaBackward } from "react-icons/fa";
 import { RxExitFullScreen } from "react-icons/rx";
 
 import './video_player.scss'
-const VideoPlayer = ({src})=>{
-
+const VideoPlayer = ({video})=>{
     const playSpeeds=[
         {
             value:0.25,
@@ -56,6 +51,7 @@ const VideoPlayer = ({src})=>{
     const videoRef=useRef(null);
     const videoWrapperRef=useRef(null);
     const speedOptionsRef=useRef(null);
+    const qualityOptionsRef=useRef(null);
     const progressBarRef=useRef(null);
     const currentTimeRef=useRef(null);
     const progressAreaRef=useRef(null);
@@ -70,7 +66,9 @@ const VideoPlayer = ({src})=>{
     const [duration, setDuration] = useState(0);
     const [currTime, setCurrTime] = useState(0);
     const [showControls,setShowControls]=useState(true)
-
+    const [activeSpeedIndex, setActiveSpeedIndex] = useState(3);
+    const [activeQualityIndex, setActiveQualityIndex] = useState(0);
+    
 
     
    
@@ -83,12 +81,27 @@ const VideoPlayer = ({src})=>{
 
     const handleShowSpeedOptions=(e)=>{
         e.stopPropagation();
-        
         speedOptionsRef.current.classList.toggle("show")
+        qualityOptionsRef.current.classList.remove("show");
+
+    }
+      const handleShowQualityOptions=(e)=>{
+        e.stopPropagation();
+        qualityOptionsRef.current.classList.toggle("show")
+        speedOptionsRef.current.classList.remove("show");
+
     }
 
-    const handleSpeed=(speed)=>{
+    const handleSpeed=(speed,index)=>{
+        setActiveSpeedIndex(index)
         videoRef.current.playbackRate=speed;
+    }
+    const handleChangeUrl=(url,index)=>{
+        setActiveQualityIndex(index)
+        let CurrTime=videoRef.current.currentTime;
+        videoRef.current.src=url;
+        videoRef.current.currentTime=CurrTime;
+        videoRef.current.play();
     }
     const handleSpeakerVolume=()=>{
         progressAreaRef.current.addEventListener("mousemove",()=>{});
@@ -179,7 +192,7 @@ const VideoPlayer = ({src})=>{
         setShowControls(true);
         hideControlsTimeout = setTimeout(() => {
             setShowControls(false);
-        }, 3000); // 3 seconds
+        }, 3000);
     };
 
 
@@ -191,8 +204,10 @@ const VideoPlayer = ({src})=>{
         const handleClickOutside=(e)=>{
             if(speedOptionsRef.current && speedOptionsRef.current.classList.contains("show")){
                 speedOptionsRef.current.classList.remove("show");
-                console.log("12312")
             }
+             if(qualityOptionsRef.current && qualityOptionsRef.current.classList.contains("show")){
+                qualityOptionsRef.current.classList.remove("show");
+             }
         }
       
         document.addEventListener('click', handleClickOutside);
@@ -219,7 +234,7 @@ const VideoPlayer = ({src})=>{
                         <div className="progress-bar" ref={progressBarRef}></div>
                         <input  type="range" min="0" max="100" step={0.001} value={currTime} onChange={handleChangeCurrTime}/>
                     </div>
-                    <span className="max-time">{formaTime(duration)}</span>
+                    <span className="max-time">{video.durationText}</span>
                 </div>
                 <div className="video-controls">
 
@@ -235,16 +250,28 @@ const VideoPlayer = ({src})=>{
                     </div>
 
                     <div className="right-options d-flex flex-row align-items-center justify-content-end">
-                        <div className="position-relative right-options d-flex flex-row align-items-center">
+
+                        <div className="position-relative d-flex flex-row align-items-center justify-content-end">
 
                             <MdSlowMotionVideo size={25} onClick={handleShowSpeedOptions}/>
-
-                            <div className="speed-options" ref={speedOptionsRef}>
+                                <div className="options" ref={speedOptionsRef} >
                                 {playSpeeds.map((item,index)=>
-                                    <span key={index} onClick={()=>handleSpeed(item.value)}>{item.text}</span>
+                                    <span key={index} onClick={()=>handleSpeed(item.value,index)}  className={activeSpeedIndex === index ? 'active' : ''}>{item.text}</span>
+                                )}
+                            </div>
+                            
+                        </div>
+                        <div className="position-relative d-flex flex-row align-items-center">
+
+                            <MdHighQuality size={25} onClick={handleShowQualityOptions}/>
+
+                            <div className="options" ref={qualityOptionsRef}>
+                                {video.videoUrl.map((item,index)=>
+                                    <span key={index} onClick={()=>handleChangeUrl(item.url,index)}  className={activeQualityIndex === index ? 'active' : ''}>{item.value}</span>
                                 )}
                             </div>
                         </div>
+                     
 
                         <TbPictureInPictureFilled size={24} onClick={handlePictureInPicture}/>
 
@@ -253,9 +280,9 @@ const VideoPlayer = ({src})=>{
 
                 </div>
             </div>
-            <video ref={videoRef} src={src} className="responsive-video" onClick={handleIsPlaying} onTimeUpdate={handleVideoTimeUpdate}onLoadedMetadata={handleLoadedMetadata} ></video>
+            <video ref={videoRef} src={video.videoUrl[0].url} className="responsive-video" onClick={handleIsPlaying} onTimeUpdate={handleVideoTimeUpdate}onLoadedMetadata={handleLoadedMetadata} ></video>
         </div>
     )
 }
 
-export default VideoPlayer
+export default React.memo(VideoPlayer)

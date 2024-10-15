@@ -3,7 +3,7 @@ import React, { useRef, useState,useEffect } from "react";
 import { MdOutlineRemoveRedEye } from "react-icons/md";        
 import { FaUpload } from "react-icons/fa";
 import './dragDropVideos.scss'
-import spinner from '../../../public/xspinner.svg'
+import spinner from '../../assets/xspinner.svg'
 const DragDropVideos = ({type,firstText,secondText,setFileVideo})=>{
     const handleDragFile=(event)=>{
         event.preventDefault();
@@ -24,13 +24,14 @@ const DragDropVideos = ({type,firstText,secondText,setFileVideo})=>{
             setSpinnerFlag(true)
             clearTimeout(window.timeoutId)
             window.timeoutId = setTimeout(() => {
-            setFileVideo(URL.createObjectURL(files[0]));
+            setFileVideo(files[0]);
 
             }, 2000);
 
         }
     }
      const inputFile=(event)=>{
+        event.preventDefault();
         const files=event.target.files
         if(files.length!=1 || files[0].type!="video/mp4"){
             alert("file không hợp lệ,yêu cầu 1 file")
@@ -39,7 +40,7 @@ const DragDropVideos = ({type,firstText,secondText,setFileVideo})=>{
             setSpinnerFlag(true)
             clearTimeout(window.timeoutId)
             window.timeoutId = setTimeout(() => {
-            setFileVideo(URL.createObjectURL(files[0]));
+            setFileVideo(files[0]);
 
             }, 2000);
 
@@ -60,7 +61,7 @@ const DragDropVideos = ({type,firstText,secondText,setFileVideo})=>{
             <input type="file" hidden ref={inpuRef} accept="video/*" onChange={inputFile}/>
             <span className="white-text">{firstText}</span>
             <span className="gray-text">{secondText}</span>
-            <button onClick={()=>inpuRef.current.click()}>Chọn tệp</button>
+            <button onClick={()=>inpuRef.current.click()} type="button">Chọn tệp</button>
         </div>
        </div>
     )

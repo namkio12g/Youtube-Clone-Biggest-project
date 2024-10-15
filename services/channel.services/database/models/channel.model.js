@@ -23,6 +23,10 @@ const channelSchema=new Schema({
         type: Number,
         default: 0
     },
+      videosCount: {
+          type: Number,
+          default: 0
+      },
     createdAt:{
         type:Date,
         default:Date.now
@@ -64,7 +68,7 @@ const channelSchema=new Schema({
         },
         status: {
             type: String,
-            default: "active"
+            default: "public"
         }
 
 })

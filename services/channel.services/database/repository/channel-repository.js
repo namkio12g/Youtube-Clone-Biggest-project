@@ -27,6 +27,15 @@ class channelRepository{
             throw error
         }
     }
+    async findOneChannelById(id) {
+
+        try {
+            const channel = await channelModel.findById(id)
+            return channel
+        } catch (error) {
+            throw error
+        }
+    }
 
     async getChannels(){
         try {

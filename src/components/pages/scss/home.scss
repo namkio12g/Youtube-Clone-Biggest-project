@@ -14,6 +14,9 @@
     .videos-section{
         margin-top: 3rem;
     }
+    .infinite-scroll-component {
+        overflow: visible !important;
+    }
    .category-carousel{
         .title{
             display: flex;
@@ -62,6 +65,11 @@
                 border-radius: 0.6rem;
                 background-color:#1a1c1e ;
                 &:hover{
+                    background-color: $red-priamry;
+                    color:$black-primary;
+                    box-shadow: $red-shadow;
+                }
+                &.active{
                     background-color: $red-priamry;
                     color:$black-primary;
                     box-shadow: $red-shadow;

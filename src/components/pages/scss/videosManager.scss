@@ -3,6 +3,71 @@
 @import '../../../base';
 $background-table:#282828;
 $border-color:#353535;
+.notification{
+    position: absolute;
+    top: 1rem;
+    left: 25%;
+    width: 50%;
+    padding: 0.5rem;
+    justify-content: space-between;
+    border-radius: 10px;
+    *{
+        background-color: transparent;
+    }
+    &.success{
+        background-color: #dcf3d6;
+        border: 4px #b4d2ac solid;
+        .icon{
+        color: #556d4b;
+        background-color: #c6dfb8;
+        }
+        span{
+            color: #7b8d75;
+        }
+        .title{
+        color: #556d4b;
+        }
+        .icon-cancel{
+            color: #7b8d75;
+            &:hover{
+                 color: #556d4b;
+             }
+        }
+    }
+    &.fail{
+        background-color: #eec8c5;
+        border: 4px #c99694 solid;
+        .icon{
+            color: #ae332e;
+            background-color: #ca9995;
+        }
+        span{
+            color: #be4e4e;
+        }
+        .title{
+            color: #ae332e;
+        }
+        .icon-cancel{
+            color: #ca9995;
+              &:hover{
+                 color: #ae332e;
+             }
+        }
+    }
+    .icon{
+        padding: 0.4rem;
+        border-radius: 50%;
+      
+    }
+    .title{
+        font-size: 1.3rem;
+        font-weight: 700;
+    }
+    .icon-cancel{
+         cursor: pointer;
+    }
+   
+}
  .modal-div{
         height: 100vh;
         width: 100%;
@@ -11,7 +76,7 @@ $border-color:#353535;
         top: 0;
         z-index: 10;
         left: 0;
-        
+
         .center-div{
             padding: 1rem 0rem;
             padding-bottom: 0.5rem;
@@ -58,12 +123,16 @@ $border-color:#353535;
                 bottom: -20px;
                 height: fit-content;
                 left: 0;
-                button{
-                    background-color: white;
+                .update-button{
+                    background-color: rgb(122, 118, 118);
                     border: none;
                     font-size: 1rem;
                     padding: 0.3rem 1rem;
                     border-radius: 15px;
+                    &.active{
+                        background-color: white;
+                    }
+                    
                 }
             }
             .bottom-div{
@@ -88,6 +157,7 @@ $border-color:#353535;
                     position: sticky;
                     right: 0;
                     top:0;
+                    width: 100%;
                     video{
                         width: 100%;
                         border-radius: 5px;
@@ -124,6 +194,7 @@ $border-color:#353535;
                         display: none;
                     }
                     label{
+                        width: 225px;;
                         padding: 3rem;
                         color: rgb(126, 126, 126);
                         border: 1px dashed rgb(133, 132, 132);
@@ -142,7 +213,7 @@ $border-color:#353535;
                     resize: none;
                 }
                 .custom-texarea-box{
-                    width: 440px;
+                    min-width: 40px;
                     margin: 0.3rem 0;
                     .custom-textarea{
                         font-size: 1rem;
@@ -169,7 +240,7 @@ $border-color:#353535;
                 .descriptions{
                     .custom-texarea-box{
                         .custom-textarea{
-                            height: 130px !important;
+                            min-height: 130px !important;
                         }
                     }
                 }
@@ -290,18 +361,51 @@ $border-color:#353535;
     }
     .bottom-div{
        .videos-data-table{
-        
+        position: relative;
+        min-height: 60vh;
         *{
         background-color: transparent;
        }
         img{
             border-radius: 10px;
         }
-       .video-player{
-        border-radius: 5px;
-       }
-       .video-info{
-        position: relative;
+        .nodata-div{
+            color: $text-color;
+        }
+        .duration-text{
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 2;
+            color: $text-color;
+            background-color: rgb(0, 0, 0,0.8);
+            padding: 0.2rem 0.3rem;
+            border-radius: 5px;
+            
+        }
+         .image-loading{
+            span{
+                background-color: #110202;
+                display: flex;
+                width: 250px;
+                height: 140px;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+        .image-box{
+            &.processing{
+            opacity: 0.4;
+
+            }
+        }
+        .video-player{
+            border-radius: 5px;
+        }
+        .video-info{
+            position: relative;
+            width: 293px;
+            height: 100%
         ;
         .expand{
             padding:2rem 1rem;
@@ -356,8 +460,11 @@ $border-color:#353535;
             }
            
         }
+        .rdt_TableCell{
+            padding: 0;
+        }
          .rdt_TableRow{
-            
+            padding:0.3rem 0 1rem 0;
             font-size: 16px;
             color: $text-color;
             border-bottom: 1px solid $border-color;

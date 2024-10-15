@@ -169,7 +169,8 @@
                 margin-left: 0.7rem;
                 cursor: pointer;
             }
-            .speed-options{
+            .options{
+                background-color: rgb(47, 46, 46);
                 flex-direction: column;
                 position: absolute;
                 justify-content: end;
@@ -182,6 +183,9 @@
                     padding: 0.5rem 5rem 0.5rem 2rem;
                     &:hover{
                         background-color: #ed213e;
+                    }
+                    &.active{
+                         background-color: #ed213e;
                     }
                 }
                 &.show{

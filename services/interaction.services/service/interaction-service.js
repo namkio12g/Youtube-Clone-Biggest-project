@@ -4,11 +4,8 @@ class interactionService{
     constructor(){
         this.commentRepository = new commentRepository()
     }
-    async createNewChannel({email,password}){
-        return this.commentRepository.createNewChannel({
-            email,
-            password
-        })
+    async getComments(videoId){
+      
     }
     async getChannels(){
         return this.commentRepository.getChannels()

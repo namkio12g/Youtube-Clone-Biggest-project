@@ -13,5 +13,7 @@ module.exports={
     PORT:process.env.PORT,
     RABBITMQ_URL:process.env.RABBITMQ_URL,
     EXCHANGE_NAME:process.env.EXCHANGE_NAME,
-    VIDEO_SERVICE:process.env.VIDEO_SERVICE
+    VIDEO_SERVICE:process.env.VIDEO_SERVICE,
+    REPLY_QUEUE :process.env.REPLY_QUEUE,
+    JWTSECRETKEY: process.env.JWTSECRETKEY,
 }

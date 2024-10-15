@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react'
+import { useState,useEffect,useCallback } from 'react'
 
 import Header from './components/header/header.component';
 import Sidebar from './components/sidebar/sidebar.component';
@@ -17,13 +17,9 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  
-  const Layout=({children})=>{
-    const [sidebar, toggleSideBar] = useState(true)
-    const handleToggleSideBar = ()=> toggleSideBar(value=>!value)
-    const [user,setUser] = useState(null)
-    useEffect(()=>{
-        fetch("/api/channel/getInfo",{
+  const [user,setUser] = useState(null)
+  useEffect(()=>{
+        fetch("/api/channel/fetchChannel",{
             method:"GET",
             credential:"include"
         })
@@ -33,6 +29,10 @@ function App() {
 
         
     },[])
+  const Layout=({children})=>{
+    const [sidebar, toggleSideBar] = useState(true)
+    const handleToggleSideBar = useCallback(()=> toggleSideBar(value=>!value));
+    
     return(
       <>
         <Header handleToggleSideBar={handleToggleSideBar} user={user}/> 
@@ -54,7 +54,7 @@ function App() {
                 }
                 >
           </Route>
-          <Route path="/video"
+          <Route path="/video/:videoId"
                 element={
                   <Layout>
                       <VideoPage/>
@@ -97,7 +97,7 @@ function App() {
             <Route path="/videos-manager"
               element={
                 <Layout>
-                      <VideosManager/>
+                      <VideosManager user={user}/>
                 </Layout>
               }
               >

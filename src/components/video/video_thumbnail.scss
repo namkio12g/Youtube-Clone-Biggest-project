@@ -30,9 +30,17 @@
                 color: $text-color;
                 font-size:1.3rem;
                 font-weight: 500;
+                display: -webkit-box;
+                -webkit-line-clamp: 1;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                text-overflow: ellipsis;
         }
         .view-icon{
             color: #b71c24;
+        }
+        .time-icon{
+            color: #98aae0;
         }
         .check-icon{
             color:#2db235 ;
