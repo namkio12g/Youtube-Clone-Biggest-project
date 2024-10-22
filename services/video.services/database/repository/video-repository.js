@@ -18,7 +18,6 @@ class videoRepository {
     }
     // update video url
     async updateVideoUrl(videoId, videoUrl){
-        console.log("im here3")
         try {
             const result=await videoModel.findByIdAndUpdate(videoId,{
                 videoUrl:videoUrl,
@@ -112,7 +111,6 @@ class videoRepository {
             return videos;
             }
             const videos = await videoModel.find(find).sort(sort).skip(pagination*number).limit(number);
-            console.log(pagination * number)
             return videos;
         } catch (error) {
             throw error;
@@ -122,11 +120,10 @@ class videoRepository {
   async findVideosWithFields(find, sort, pagination, fields,number = 8) {
       try {
           if (number == 0) {
-              const videos = await videoModel.find(find).sort(sort);
+              const videos = await videoModel.find(find).sort(sort).select(fields);
               return videos;
           }
           const videos = await videoModel.find(find).sort(sort).skip(pagination * number).limit(number).select(fields);
-          console.log(pagination * number)
           return videos;
       } catch (error) {
           throw error;

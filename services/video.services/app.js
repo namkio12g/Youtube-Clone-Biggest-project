@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const api=require("./api/video");
 const cookieParser = require('cookie-parser');
+const errorHandler=require("./api/middleware/errorHandler")
 const bodyParser = require('body-parser');
 const {createRabbitConnection}=require("./untils");
 module.exports = async (app)=>{
@@ -14,4 +15,5 @@ module.exports = async (app)=>{
     }))
     app.use(bodyParser.json())
     api(app,channel);
+    app.use(errorHandler)
 }

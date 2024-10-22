@@ -1,0 +1,102 @@
+@import '../../base';
+.comment-item{
+    color:$text-color;
+    .channel-title{
+        font-size: 15px;
+        font-weight: 500;
+        font-family: "Poppins",sans-serif;
+    }
+    .show-replies-span{
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        color: rgb(239, 96, 135);
+        padding: 0.5rem 0.8rem;
+        border-radius: 10px;
+        &:hover{
+            background-color: rgba(249, 14, 77, 0.312);
+        }
+
+    }
+    .channel-thumbnail{
+        border-radius: 50%;
+
+    }
+    .time-text{
+        color: #7d8698;
+    }
+    .comment-box{
+        background-color: #252525;
+        width: 100%;
+        border-radius: 0.5rem;
+        margin: 5px 0;
+        min-height: 70px;
+        p{
+            background-color: transparent;
+            padding: 0.7rem 1rem;
+            margin: 0;
+        }
+    }
+    .comment-content{
+        width: 100%;
+
+    }
+    .button-section{
+        *{
+            margin-right: 1.2rem;
+            cursor: pointer;
+           
+        }
+         svg:hover{
+                color:rgb(255, 0, 55) ;
+            }
+        span{
+            font-size: 17px;
+        }
+    }
+    .comment-list-child{
+         color:$text-color;
+        .channel-title{
+            font-size: 15px;
+            font-weight: 500;
+            font-family: "Poppins",sans-serif;
+        }
+        .channel-thumbnail{
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+        }
+        .time-text{
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .comment-box{
+            background-color: #252525;
+            width: 100%;
+            border-radius: 0.5rem;
+            *{
+                background-color: transparent;
+                padding: 0.5rem 0.8rem;
+                margin: 0;
+                font-size: 14px;
+                font-weight: 500;
+            }
+        }
+        .button-section{
+            *{
+                margin-right: 0.8rem;
+            }
+            span{
+                font-size: 14px;
+            }
+            svg{
+                font-size: 14px;
+            }
+        }   
+    }
+    .form{
+        &.hide{
+            display: none;
+        }
+    }
+}

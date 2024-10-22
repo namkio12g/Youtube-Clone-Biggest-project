@@ -1,6 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
-@import '../../../base';
+@import '../../base';
 .app_container{
     // display: flex;
     margin-left: 90px;
@@ -30,21 +30,35 @@
   width: 68%; 
   max-width: 1200px; 
   height: fit-content;
+
   svg{
     background-color: transparent;
   }
   .channel-thumbnail{
     width: 40px;
     height: 40px;
-    border-radius: 50%;
+    border-radius: 10px;
   }
   
   .info-section{
+     .time-diff{
+        color: #9d9c9c;
+      }
+    .views-span{
+      color: $text-color;
+    }
+    .heart-icon{
+      color: #ff0044;
+    }
     .video-title{
       font-size: 1.6rem;
       color: $text-color;
       font-family: "Roboto",sans-serif;
+     
     }
+    .view-icon{
+          color: #b71c24;
+      }
     .top{
       justify-content: space-between;
       .channel-title{
@@ -70,13 +84,24 @@
               background-color: #363535;
             }
           }
+          .save-button{
+            &.active{
+
+              background-color: $text-color;
+              color: black;
+            }
+          }
         .like-section{
-          
+        
           .like{
             padding: 0.5rem 0 0.5rem 1.2rem;
             border-radius: 0;
             border-top-left-radius: 30px;
             border-bottom-left-radius: 30px;
+            &.active{
+              background-color: $text-color;
+              color: black;
+            }
             &::after{
               content: "";
               height: 100%;
@@ -93,14 +118,7 @@
           }
         }
       }
-      .subscriber-button{
-        color: black;
-        background-color: $text-color;
-        font-weight: 600;
-        &:hover{
-          background-color: #d7d7d7
-        }
-      }
+      
       
     }
 
@@ -112,6 +130,43 @@
         div{background-color: transparent;}
         p{ background-color: transparent;}
         span{background-color: transparent;}
+        .channel-title{
+          font-weight: 500;
+          font-size: 18px;
+        }
+        .channel-thumbnail{
+          width: 50px;
+          height: 50px;
+        }
+        .channel-icon{
+            color:#2db235 
+        }
+        .subcriber-count{
+          color: rgb(168, 165, 165);
+        }
+        .subscriber-button{
+          color: black;
+          background-color: $text-color;
+          font-weight: 600;
+          padding: 15px;
+          font-size: 14px;
+          border: none;
+          color: #fdedf2;
+          border-radius: 10px;
+          background-color: #fe3636;
+          cursor: pointer;
+          &:hover{
+            background-color:  #ff0000
+          }
+          &.active{
+              background-color: rgb(148, 200, 69);
+              color: black;
+             &:hover{
+              background-color: rgb(155, 215, 66);
+
+             }
+          }
+        }
     }
   }
 
@@ -122,60 +177,8 @@
       font-weight: 500;
       margin-bottom: 1rem;
     }
-    .comment-input{
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      
-      textarea{
-        background-color: transparent;
-        border: none;
-        color: $text-color;
-        border-bottom:1px solid $text-color ;
-        resize: none;
-        &:focus{
-          outline: none;
-        }
-      }
-      .clear-button{
-        background-color: transparent;
-        color: $text-color;
-        border-radius: 30px;
-        width: fit-content;
-        padding: 0.5rem 1rem;
-        border: none;
-        &:hover{
-          background-color: #2b2b2b;
-        }
-      }
-      .comment-button{
-        width: fit-content;
-        background-color: #3ca3fb;
-        color: $black-primary;
-        border-radius: 30px;
-        padding: 0.5rem 1rem;
-        border: none;
-        &:hover{
-          background-color: #58a9f0;
+ 
 
-        }
-      }
-    }
-    .comments{
-      img{
-        margin-top: 0.3rem;
-      }
-      span{
-        color:#aaaaaa;
-      }
-      p{
-        color: $text-color;
-      }
-      .channel-title{
-        color: $text-color;
-        
-      }
-    }
   }
 }
 

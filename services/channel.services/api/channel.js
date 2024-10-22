@@ -1,6 +1,8 @@
 const express= require("express")
 const channelService=require("../service/channel-service.js")
 const {SubcribeMSG, PushlishMSGWithReply, PushlishMSGNoReply}=require("../untils")
+const CustomError = require("../untils/customError")
+const {authJWT}=require("./middleware/auth.js")
 
 module.exports=(app,passport,channel)=>{
     const service = new channelService();
@@ -8,6 +10,206 @@ module.exports=(app,passport,channel)=>{
     function isLoggedIn(req, res, next) {
         req.user ? next() : res.sendStatus(401)
     }
+    
+    // -------------------hisory--------------------///
+    app.delete("/remove-history",async (req,res,next)=>{
+        try {
+            const channelId = req.body.id;
+            const videoId = req.body.videoId;
+            const response = await service.removeHistory(channelId, videoId)
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    app.get("/history/:id",async(req,res,next)=>{
+        try {
+            const channelId=req.params.id;
+            const channelUser=await service.getOneChannel(channelId);
+            if(!channelUser)
+                next(new CustomError("cant find channel",404))
+            const videoIds=channelUser.history.map((item)=>{
+                return item.videoId
+            })
+            console.log(videoIds)
+            const payload = {
+                event: "GET_VIDEOS_INFO",
+                data: {
+                    videoIds: videoIds
+                }
+            }
+            const response = await PushlishMSGWithReply(channel,payload,"video");
+            var videos=JSON.parse(response)
+
+
+
+            const videosMap = channelUser.history.reduce((acc, item) => {
+                    acc[item.videoId.toString()] = item.createdAt;
+                    return acc;
+                }, {});
+            videos = videos.map(video => {
+                    return {
+                        ...video,
+                        createAt: videosMap[video._id.toString()],
+                    };
+                });
+            res.json(videos)
+        } catch (error) {
+            next(error)
+        }
+
+    })
+    app.post("/add-history",async(req,res,next)=>{
+        try {
+            const channelId=req.body.id;
+            const videoId=req.body.videoId;
+            const response=await service.addHistory(channelId,videoId)
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    // ------------------videosliked--------------------///
+    app.delete("/remove-videos-liked", async (req, res, next) => {
+        try {
+            const channelId = req.body.id;
+            const videoId = req.body.videoId;
+            const response = await service.removeVideosLiked(channelId, videoId)
+            const payload = {
+                event: "ADJUST_LIKES",
+                data: {
+                    amount: -1,
+                    videoId: videoId
+                }
+            }
+            PushlishMSGNoReply(channel, payload, "video");
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    app.get("/videos-liked/:id", async (req, res, next) => {
+        try {
+            const channelId = req.params.id;
+            const channelUser = await service.getOneChannel(channelId);
+            if (!channelUser)
+                next(new CustomError("cant find channel", 404))
+            console.log(channelUser.likesVideo)
+            const payload = {
+                event: "GET_VIDEOS_INFO",
+                data: {
+                    videoIds: channelUser.likesVideo
+                }
+            }
+            const response = await PushlishMSGWithReply(channel, payload, "video");
+            var videos = JSON.parse(response)
+            res.json(videos)
+        } catch (error) {
+            next(error)
+        }
+
+    })
+    app.post("/add-videos-liked", async (req, res, next) => {
+        try {
+
+            const channelId = req.body.id;
+            const videoId = req.body.videoId;
+            const response = await service.addVideosLiked(channelId, videoId)
+            var amount=-1
+            if(response.addFlag)
+                amount=1
+            const payload = {
+                event: "ADJUST_LIKES",
+                data: {
+                    amount: amount,
+                    videoId:videoId
+                }
+            }
+            PushlishMSGNoReply(channel, payload, "video");
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    // ------------------favourite videos--------------------///
+    app.delete("/remove-favourite-videos", async (req, res, next) => {
+        try {
+            const channelId = req.body.id;
+            const videoId = req.body.videoId;
+            const response = await service.removeFavouriteVideos(channelId, videoId)
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    app.get("/favourite-videos/:id", async (req, res, next) => {
+        try {
+            const channelId = req.params.id;
+            const channelUser = await service.getOneChannel(channelId);
+            if (!channelUser)
+                next(new CustomError("cant find channel", 404))
+            console.log(channelUser.favouriteVideos)
+            const payload = {
+                event: "GET_VIDEOS_INFO",
+                data: {
+                    videoIds: channelUser.favouriteVideos
+                }
+            }
+            const response = await PushlishMSGWithReply(channel, payload, "video");
+            var videos = JSON.parse(response)
+            res.json(videos)
+        } catch (error) {
+            next(error)
+        }
+
+    })
+    app.post("/add-favourite-videos", async (req, res, next) => {
+        try {
+            const videoId = req.body.videoId;
+            const channelId=req.body.id;
+            const response = await service.addFavouriteVideos(channelId, videoId)
+            res.json(response)
+
+        } catch (error) {
+            next(error)
+        }
+    })
+    // ------------------channels subcribed--------------------///
+
+    app.get("/channels-subcribed/:id", async (req, res, next) => {
+        try {
+            const channelId = req.params.id;
+            const channels=await service.getChannelSubcribed(channelId);
+            res.json(channels)
+        } catch (error) {
+            next(error)
+        }
+
+    })
+    app.post("/subcribe-channel", async (req, res, next) => {
+        try {
+            const channelId = req.body.channelId;
+            const channelSucribedId = req.body.channelSucribedId;
+            const response = await service.subcribeChannel(channelId, channelSucribedId)
+            res.json(response);
+        } catch (error) {
+            next(error)
+        }
+    })
+    app.get("/get-like-favourite-subcribe/:id",async (req, res, next) => {
+        try {
+            const id=req.params.id;
+            const response=await service.getLikeFavouriteSubcribe(id)
+            res.json(response)
+        } catch (error) {
+            next(error)
+        }
+    })
     // authentication with google
     app.get("/auth/google",
         passport.authenticate('google', {
@@ -92,5 +294,46 @@ module.exports=(app,passport,channel)=>{
                 mymsg: "my msg"
             }), "video")
             res.json(data)
+    })
+    //------------------comment-----------------------//
+    app.post("/add-comment-liked", async (req, res, next) => {
+        try {
+            const commentId = req.body.commentId;
+            const channelId = req.body.channelId;
+            const response = await service.addCommentsLiked(channelId, commentId);
+            var amount=-1
+            if(response.addFlag)
+                amount=1
+            const payload = {
+                event: "ADJUST_LIKES",
+                data: {
+                    amount: amount,
+                    commentId: commentId
+                }
+            }
+            PushlishMSGNoReply(channel, payload, "interaction");
+            res.json(response);
+        } catch (error) {
+            next(error)
+        }
+    })
+
+    app.delete("/remove-comment-liked", async (req, res, next) => {
+        try {
+            const commentId = req.body.commentId;
+            const channelId = req.body.channelId;
+            const response = await service.removeCommentsLiked(channelId, commentId);
+            const payload = {
+                event: "ADJUST_LIKES",
+                data: {
+                    amount: -1,
+                    commentId: commentId
+                }
+            }
+            PushlishMSGNoReply(channel, payload, "interaction");
+            res.json(response);
+        } catch (error) {
+            next(error)
+        }
     })
 }

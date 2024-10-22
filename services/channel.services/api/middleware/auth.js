@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken")
-const {JWTSECRETKEY}=require("../config")
+const {JWTSECRETKEY}=require("../../config")
 module.exports.authJWT=(req,res,next)=>{
      const token = req.cookies.token
      if (token) {
@@ -17,12 +17,11 @@ module.exports.authJWT=(req,res,next)=>{
 
              } else {
                  // req.session.staff=decoded
+                 req.body.userId = decoded.id;
                  next()
 
              }
          });
 }
-    res.json({
-        flag:false
-    })
+    next()
 }

@@ -17,7 +17,14 @@ class channelRepository{
             
         }
     }
-
+    async updateManyChannel(find, updateInfo){
+        try {
+            const result=await channelModel.updateMany(find,updateInfo);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
     async findOneChannelByGoogleId(google_id){
 
             try {
@@ -87,18 +94,36 @@ class channelRepository{
             throw error
         }
     }
-    async addtoHistory(google_id,video_id){
+    async findUpdateOneChannel(find,updateInfo){
         try {
-           const result = await channelModel.findOneAndUpdate({
-               google_id: google_id
-           }, {
-               $push: {
-                   history: video_id
-               }
-           });
+           const result = await channelModel.findOneAndUpdate(find,updateInfo);
            return result;
         } catch (error) {
             throw error;
+        }
+    }
+      async updateOneChannel(find, updateInfo) {
+          try {
+              const result = await channelModel.updateOne(find, updateInfo);
+              return result;
+          } catch (error) {
+              throw error;
+          }
+      }
+    async findChannels(find,sort){
+        try {
+            const channels= await channelModel.find(find).sort(sort);
+            return channels;
+        } catch (error) {
+            throw error
+        }
+    }
+    async findChannelsWithFields(find,fields) {
+        try {
+            const channels = await channelModel.find(find).select(fields)
+            return channels;
+        } catch (error) {
+            throw error
         }
     }
     async ChangeNotification(google_id,flag){
@@ -145,16 +170,9 @@ class channelRepository{
             throw error
         }
      }
-      async updateChannel(google_id,descriptions, status, title) {
+      async updateChannel(find,updateInfo) {
         try {
-              return await channelModel.updateOne({
-                  google_id: google_id
-              }, { 
-                descriptions:descriptions,
-                status:status,
-                title:title
-                 
-              });
+              return await channelModel.findByIdAndUpdate(find, updateInfo);
         } catch (error) {
             throw error
         }

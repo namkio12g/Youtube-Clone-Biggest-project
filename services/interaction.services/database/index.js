@@ -1,4 +1,4 @@
 module.exports={
-    commentRepository:"./repository/comment-repository.js",
-    connection:"./connection"
+    commentRepository: require("./repository/comment-repository.js"),
+    connection:require("./connection")
 }

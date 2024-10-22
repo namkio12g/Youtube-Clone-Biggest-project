@@ -1,0 +1,35 @@
+@import '../../components/base';
+.drag-drop-box{
+  
+    .center-box{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        button{
+            margin-top: 1rem;
+            background-color: white;
+            color: black;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+        }
+        .white-text{
+            color: white;
+            font-size: 17px;
+        }
+        .gray-text{
+            color: #909090;
+        }
+    }
+    .upload-icon{
+        margin-top: 3rem;
+        padding: 4rem;
+        background-color: $black-primary !important;
+        border-radius: 50%;
+        cursor: pointer;
+        margin-bottom: 0.2rem;
+        svg{
+            color: #909090;
+        }
+    }
+    
+}

@@ -1,0 +1,103 @@
+import { useState,useEffect,useCallback } from 'react'
+
+import Header from './features/header/header.component';
+import Sidebar from './features/sidebar/sidebar.component';
+import Home from './pages/anotherPages/home_page';
+import VideoPage from './pages/anotherPages/video_page';
+import HistoryPage from './pages/anotherPages/history_page';
+import VideosLikedPage from './pages/anotherPages/videosLiked_page';
+import VideosManager from './pages/anotherPages/videosManager_page';
+
+import Subcription from './pages/anotherPages/channelSubcription_page';
+import ChannelPage from './pages/channelPage/channel_layout';
+
+
+import Container from 'react-bootstrap/Container';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { UserProvider } from './context/user.context';
+function App() {
+  
+  const Layout=({children})=>{
+    const [sidebar, toggleSideBar] = useState(true)
+    const handleToggleSideBar = useCallback(()=> toggleSideBar(value=>!value));
+    
+    return(
+      <>
+      <UserProvider>
+          <Header handleToggleSideBar={handleToggleSideBar}/> 
+          <Sidebar sidebar={sidebar}/>
+          <div className={sidebar?"app_container sidebar-active":"app_container"}> 
+              {children}
+          </div> 
+      </UserProvider>
+      </>
+    )
+  }
+
+  return (
+     <Router>
+        <Routes>
+          <Route path="/"
+                element={
+                  <Layout>
+                       <Home/>
+                  </Layout>
+                }
+                >
+          </Route>
+          <Route path="/video/:videoId"
+                element={
+                  <Layout>
+                      <VideoPage/>
+                  </Layout>
+                }
+                >
+          </Route>
+           <Route path="/channel/*"
+                element={
+                  <Layout>
+                       <ChannelPage/>
+                  </Layout>
+                }
+                >
+          </Route>
+           <Route path="/history"
+                element={
+                  <Layout>
+                       <HistoryPage/>
+                  </Layout>
+                }
+                >
+          </Route>
+          <Route path="/videos-liked"
+                element={
+                  <Layout>
+                       <VideosLikedPage/>
+                  </Layout>
+                }
+                >
+          </Route>
+          <Route path="/subcription"
+                element={
+                  <Layout>
+                       <Subcription/>
+                  </Layout>
+                }
+                >
+          </Route>
+            <Route path="/videos-manager"
+              element={
+                <Layout>
+                      <VideosManager/>
+                </Layout>
+              }
+              >
+          </Route>
+        </Routes>
+     </Router>
+      
+  )
+}
+
+export default App

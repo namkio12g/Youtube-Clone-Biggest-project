@@ -44,8 +44,20 @@ const channelSchema=new Schema({
         default:[]
     }],
     likesVideo:{
-        type:[mongoose.Schema.Types.ObjectId],
+        type:[String],
         default:[]
+    },
+     favouriteVideos: {
+         type: [String],
+         default: []
+     },
+     commentsLiked: {
+         type: [String],
+         default: []
+     },
+    channelSubcribed: {
+        type: [String],
+        default: []
     },
     history:[{
         videoId:{type:mongoose.Schema.Types.ObjectId},

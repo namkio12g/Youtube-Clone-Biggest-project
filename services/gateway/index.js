@@ -25,7 +25,6 @@ app.use("/", createProxyMiddleware({
     target: "http://localhost:2020",
     changeOrigin: true
 }))
-
 app.listen(process.env.PORT||3000,()=>{
     console.log(`listening to port ${process.env.PORT||3000}`)
 })

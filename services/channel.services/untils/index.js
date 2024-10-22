@@ -5,7 +5,7 @@ const jwt=require("jsonwebtoken")
 const {JWTSECRETKEY,EXCHANGE_NAME,RABBITMQ_URL,CHANNEL_SERVICE,REPLY_QUEUE}=require("../config")
 const amqlib =require("amqplib")
 const { v4: uuidv4 } = require('uuid'); 
-
+const CustomError = require("../untils/customError")
 module.exports.verifyJWTToken=async(token)=>{
     let data;
     jwt.verify(token,JWTSECRETKEY, (err, decoded) => {
@@ -32,12 +32,12 @@ module.exports.generateJWTToken = (email, id) => {
         , process.env.JWTSECRETKEY, {expiresIn: '1h'});
     return token;
 }
-module.exports.formatData=(data)=>{
-    if(data){
-        return {data};
-    }
-    else{
-        throw new Error("Data not found!")
+module.exports.formatData = (data) => {
+    if (data) {
+        return data;
+    } else {
+        throw new CustomError("Data not found!!", 404)
+
     }
 }
 module.exports.bcryptPassword=async(password)=>{
@@ -84,30 +84,38 @@ module.exports.PushlishMSGNoReply=async(channel,msg,service)=> {
     msg = JSON.stringify(msg);
     channel.publish(EXCHANGE_NAME, service, Buffer.from(msg),{
     });
-    console.log("send",msg);
 };
 module.exports.PushlishMSGWithReply = (channel, msg, service) => {
     return new Promise(async (resolve, reject) => {
         const correlationId = uuidv4();
         console.log(correlationId);
         msg = JSON.stringify(msg);
+        const consumerTag = `consumer-${correlationId}`;
         channel.consume(
             REPLY_QUEUE,
             (msg) => {
+                console.log("first:", correlationId)
+                console.log("first2:", msg.properties.correlationId)
                 if (msg.properties.correlationId === correlationId) {
-    
-                    console.log("Request Received response:", msg.content.toString());
                     resolve(msg.content.toString());
+                    channel.cancel(consumerTag);
                 }
+           
             }, {
-                noAck: true
+                noAck: true,
+                consumerTag: consumerTag
             }
         );
-        await channel.publish(EXCHANGE_NAME, service, Buffer.from(msg), {
-            correlationId: correlationId,
-            replyTo: REPLY_QUEUE,
-        });
-        console.log("send", msg);
+        try {
+
+            await channel.publish(EXCHANGE_NAME, service, Buffer.from(msg), {
+                correlationId: correlationId,
+                replyTo: REPLY_QUEUE,
+            });
+        } catch (error) {
+            channel.cancel(consumerTag);
+            reject(error);
+        }
     })
 
 };
@@ -119,18 +127,16 @@ module.exports.SubcribeMSG=async(channel,service)=>{
         if(msg.content){
             if(msg.properties.replyTo){
                 var response = await service.SubcribeEvent(msg.content.toString());
-
                 response=JSON.stringify(response)
-                console.log("i send")
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,
                 });
-                console.log("i sended")
 
                 return ;
             }
             else{
-                console.log("the msg is :", msg.content.toString())
+
+               service.SubcribeEvent(msg.content.toString())
             }
         }
     },{noAck:true});

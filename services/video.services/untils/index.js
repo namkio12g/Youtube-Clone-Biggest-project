@@ -3,6 +3,7 @@ const {RABBITMQ_URL,EXCHANGE_NAME,VIDEO_SERVICE,REPLY_QUEUE,JWTSECRETKEY}=requir
 const amqlib =require("amqplib");
 const jwt = require("jsonwebtoken")
 const { v4: uuidv4 } = require('uuid'); 
+const CustomError = require("./customError");
 module.exports.verifyJWTToken = async (token) => {
     let data;
     await jwt.verify(token, JWTSECRETKEY, (err, decoded) => {
@@ -28,8 +29,7 @@ module.exports.formatData=(data)=>{
         return data;
     }
     else{
-        console.log("data not found");
-        return null;    
+        throw new CustomError("data not found",404)
 
     }
 }
@@ -73,15 +73,24 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
                     resolve(msg.content.toString());
                     channel.cancel(consumerTag);
                 }
+                else{
+                    channel.cancel(consumerTag);
+                }
             }, {
                 noAck:true,
                 consumerTag: consumerTag
             }
         );
-        await channel.publish(EXCHANGE_NAME, service, Buffer.from(msg), {
-            correlationId: correlationId,
-            replyTo: REPLY_QUEUE,
-        });
+        try {
+            
+            await channel.publish(EXCHANGE_NAME, service, Buffer.from(msg), {
+                correlationId: correlationId,
+                replyTo: REPLY_QUEUE,
+            });
+        } catch (error) {
+            channel.cancel(consumerTag);
+            reject(error);
+        }
     })
 
 };
@@ -91,16 +100,15 @@ module.exports.SubcribeMSG = async (channel, service) => {
         exclusive: true
     });
     channel.bindQueue(q.queue, EXCHANGE_NAME, VIDEO_SERVICE)
-    channel.consume(q.queue, (msg) => {
+    channel.consume(q.queue, async(msg) => {
         if (msg.content) {
             if (msg.properties.replyTo) {
-                console.log("the msg is :", msg.content.toString())
-                 const response = JSON.stringify({
-                     result: "Processed your message"
-                 });
+                var response = await service.SubcribeEvent(msg.content.toString());
+                response = JSON.stringify(response)
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,
                 });
+
                 return;
             }
             service.SubcribeEvent(msg.content.toString())

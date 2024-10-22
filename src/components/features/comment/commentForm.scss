@@ -1,0 +1,43 @@
+@import '../../base';
+.comment-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    
+    textarea{
+        border: 2px #575b60 solid;
+        border-radius: 10px;
+        padding:1rem;
+        padding-left:3.8rem ;
+        padding-right: 3rem
+         ;
+        color:$text-color;
+        &:focus{
+            outline: none;
+            border: 2px #d51750 solid;
+        }
+        
+    }
+    .channel-thumbnail{
+        position: absolute;
+        top: 18px;
+        left:10px;
+    }
+    .submit-comment{
+        position: absolute;
+        top: 25px;
+        right:10px;
+        color: #575b60;
+        cursor: pointer;
+        &.active{
+            color: #8b2b36;
+            &:hover{
+                color: #e44356;
+            }
+        }
+        
+
+    }
+    }

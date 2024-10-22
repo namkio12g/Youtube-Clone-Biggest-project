@@ -1,43 +1,51 @@
-const mongoose = require("mongoose")
-const Schema = mongoose.Schema
-const commentSchema = new Schema({
-    videoId: {
+const mongoose=require("mongoose")
+const { types } = require("sass")
+const commentSchema=new mongoose.Schema({
+    parentId:{
+        type:mongoose.Schema.Types.ObjectId,
+        default:"null"
+    },
+    channelId:{
         type: mongoose.Schema.Types.ObjectId,
     },
-    channelId: mongoose.Schema.Types.ObjectId,
-    text: {
-        type: String,
-    },
-    createdAt: {
-        type: date,
-        default: date.now
-    },
-    replies:[ {
-      channelId: mongoose.Schema.Types.ObjectId, // Who replied
-        text: String, // Reply text
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
-    }],
-    likes: {
-        type: [mongoose.Schema.Types.ObjectId]
-    },
+    videoId: mongoose.Schema.Types.ObjectId,
+    content:String,
     likesCount:{
         type:Number,
         default:0
     },
-    dislikesCount: {
-        type: Number,
-        default: 0
-    }, delete: {
-        type: Boolean,
-        default: false
-    },
-    status: {
-        type: String,
-        default: "active"
+    createdAt:{
+        type:Date,
+        default:Date.now
     }
-
 })
-module.exports = mongoose.model("comment", commentSchema, "comments")
+commentSchema.virtual("timeDifferenceText").get(function () {
+    if (!this.createdAt)
+        return "not found createdAt";
+    const msInMinute = 60 * 1000;
+    const msInHour = 60 * msInMinute;
+    const msInDay = 24 * msInHour;
+    const msInMonth = 30 * msInDay;
+    const difference = new Date() - this.createdAt;
+
+    if (difference < msInMinute) {
+        return `${Math.floor(difference / 1000)} seconds ago`;
+    } else if (difference < msInHour) {
+        return `${Math.floor(difference / msInMinute)} minutes ago`;
+    } else if (difference < msInDay) {
+        return `${Math.floor(difference / msInHour)} hours ago`;
+    } else if (difference < msInMonth) {
+        return `${Math.floor(difference / msInDay)} days ago`;
+    } else {
+        return `${Math.floor(difference / msInMonth)} months ago`;
+    }
+});
+commentSchema
+    .set('toJSON', {
+        getters: true,
+        virtuals: true
+    });
+commentSchema.set('toObject', {
+    virtuals: true
+});
+module.exports=mongoose.model("comment",commentSchema,"comments")

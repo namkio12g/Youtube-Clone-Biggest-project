@@ -1,5 +1,4 @@
 const mongoose =require("mongoose");
-const video = require("../../api/video");
 const Schema=mongoose.Schema
 const videoSchema=new Schema({
     videoUrl:[{
@@ -22,8 +21,8 @@ const videoSchema=new Schema({
      },
      status: {
          type: String,
-         enum: ['processing', 'waiting','ready', 'removed'],
-         default: 'processing',
+         enum: ['created','processing','ready', 'removed'],
+         default: 'created',
      },
     modeView: {
              type: String,
@@ -78,12 +77,17 @@ const videoSchema=new Schema({
     getters: true
 })
 videoSchema.virtual('formatCreatedAt').get(function () {
+    if(!this.createdAt)
+        return "not found createdAt";
     let newDate = new Date(this.createdAt);
     return newDate.toISOString().split('T')[0];
+
 });
 videoSchema
     .virtual('durationText')
     .get(function () {
+        if(!this.duration)
+            return "not found durartion";
         const text = ''
         const secs = Math.floor(this.duration) % 60;
         const minutes = Math.floor(Math.floor(this.duration) % 3600 / 60);
@@ -101,6 +105,8 @@ videoSchema
         ].join(':');
     });
 videoSchema.virtual("timeDifferenceText").get(function () {
+    if(!this.createdAt)
+        return "not found createdAt";
      const msInMinute = 60 * 1000;
      const msInHour = 60 * msInMinute;
      const msInDay = 24 * msInHour;
