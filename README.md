@@ -21,3 +21,5 @@ This Readme shows you what i have been doing
 ## day 7/10-15/10
 - Now user can upload the video they want, using ffmpeg to make the resolution for video, and aws to upload it to cloud
 - Home page and Video page was also oombined with back end
+## dat 15-22/10 90% completed 
+- now user can watch ,can subcrib channel, like video, increase view,comment in video page
