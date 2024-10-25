@@ -6,6 +6,8 @@ import Home from './pages/anotherPages/home_page';
 import VideoPage from './pages/anotherPages/video_page';
 import HistoryPage from './pages/anotherPages/history_page';
 import VideosLikedPage from './pages/anotherPages/videosLiked_page';
+import FavoureVideosPage from './pages/anotherPages/favourites_page';
+
 import VideosManager from './pages/anotherPages/videosManager_page';
 
 import Subcription from './pages/anotherPages/channelSubcription_page';
@@ -54,7 +56,7 @@ function App() {
                 }
                 >
           </Route>
-           <Route path="/channel/*"
+           <Route path="/channel/:channelId/*"
                 element={
                   <Layout>
                        <ChannelPage/>
@@ -82,6 +84,14 @@ function App() {
                 element={
                   <Layout>
                        <Subcription/>
+                  </Layout>
+                }
+                >
+          </Route>
+          <Route path="/favourite-videos"
+                element={
+                  <Layout>
+                       <FavoureVideosPage/>
                   </Layout>
                 }
                 >

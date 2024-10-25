@@ -2,6 +2,7 @@ const express=require("express")
 const {channelRepository} = require("../database")
 const {generateJWTToken,verifyJWTToken,formatData,PushlishMSG} =require("../untils")
 const mongoose = require('mongoose');
+const CustomError = require("../untils/customError");
 const { ObjectId } = mongoose.Types;
 class channelService{
     constructor(){
@@ -18,6 +19,22 @@ class channelService{
         } catch (error) {
             throw error
         }
+    }
+    async getChannelInfoPage(channleId, userId){
+        try {
+            const userChannel=await this.repository.findOneChannelById(userId);
+            var channel=await this.repository.findOneChannelById(channleId);
+            if (!channel){
+                throw new CustomError("channel was not found",401)
+            }
+            channel={...channel.toObject(),subcribedByMe:userChannel?userChannel.channelSubcribed.includes(channel._id.toString()):false}
+            return channel;
+
+            
+        } catch (error) {
+            throw error;
+        }
+        
     }
     //subcribe
 
@@ -224,7 +241,7 @@ class channelService{
                   _id: channelId
               }, {
                   $pull: {
-                      likesVideo: new ObjectId(videoId)
+                      likesVideo: videoId
                   }
               })
               return formatData(result);
@@ -270,7 +287,7 @@ class channelService{
                 _id: channelId
             }, {
                 $pull: {
-                    favouriteVideos: new ObjectId(videoId)
+                    favouriteVideos: videoId
                 }
             })
             return formatData(result);
@@ -284,9 +301,7 @@ class channelService{
         try {
             const fields = "title profilePicture videosCount subcribersCount description _id"
             const channel = await this.repository.findOneChannelById(channelId);
-            console.log(channel.channelSubcribed)
             const channels=await this.repository.findChannelsWithFields({_id:{$in:channel.channelSubcribed}},fields);
-            console.log(channels)
             return formatData(channels);
         } catch (error) {
             throw error
@@ -328,7 +343,6 @@ class channelService{
     }
     async adjustVideoCount(channelId, amount){
         try {
-            console.log("amount: ",amount)
             const channel=await this.repository.updateChannel({_id:channelId},{$inc:{videosCount:amount}});
             return channel;
         } catch (error) {

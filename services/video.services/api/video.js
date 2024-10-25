@@ -44,10 +44,9 @@ module.exports=(app,channel)=>{
 
     //-------------------CHANNEL PAGE------------------------------//
     
-    app.get("/channel-home-videos",async (req,res,next)=>{
+    app.get("/channel-home-videos/:channelId",async (req,res,next)=>{
         try {
-            
-            const channelId=req.body.channelId;
+            const channelId=req.params.channelId;
             const videos=await service.getChannelHomeVideos(channelId)
             res.json(videos)
         } catch (error) {
@@ -57,7 +56,8 @@ module.exports=(app,channel)=>{
     })
     app.get("/channel-videos/:sort", async (req, res,next) => {
         try {
-            const channelId = req.body.channelId;
+            const channelId = req.query.channelId;
+            const pagination=req.query.pagination;
             var sort = req.params.sort;
             if(sort=="time-asc")
                 sort={createdAt:"asc"}
@@ -65,7 +65,7 @@ module.exports=(app,channel)=>{
                  sort={views:"desc"}
             else if(sort=="time-desc")
                  sort={createdAt:"desc"}
-            const videos = await service.getChannelVideos(channelId,sort);
+            const videos = await service.getChannelVideos(channelId,sort,pagination);
             res.json(videos)
         } catch (error) {
             next(error);

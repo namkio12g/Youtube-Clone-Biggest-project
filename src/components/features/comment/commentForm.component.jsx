@@ -28,12 +28,15 @@ const CommentForm=({onSubmit,text="",parentId=null,id=null,updateFlag=false})=>{
     }
     return (
     <>
-    <div className="comment-form" onChange={handleOnchangeText}>
-        <AutoResizeTextarea placeholder={"Write your comment"} title={""} fontSize={"20px"} txtAreaRef={textAreaRef} nameInp="content" text={areaText}/>
-        {updateFlag?<></>:<img src={user.thumbnail} alt="" className="channel-thumbnail me-3"/>}
-        <FaArrowAltCircleUp  className={`submit-comment ${!buttonDisabled?"active":""}`} size={30} onClick={handleCommentSubmit}/>
-       
-    </div>
+    {user?
+        <div className="comment-form" onChange={handleOnchangeText}>
+            <AutoResizeTextarea placeholder={"Write your comment"} title={""} fontSize={"20px"} txtAreaRef={textAreaRef} nameInp="content" text={areaText}/>
+            {updateFlag?<></>:<img src={user.thumbnail} alt="" className="channel-thumbnail me-3"/>}
+            <FaArrowAltCircleUp  className={`submit-comment ${!buttonDisabled?"active":""}`} size={30} onClick={handleCommentSubmit}/>
+        
+        </div>
+        :<></>
+    }
     </>
     )
 }

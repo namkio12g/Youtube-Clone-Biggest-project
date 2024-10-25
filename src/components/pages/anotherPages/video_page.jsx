@@ -1,12 +1,13 @@
 import React from "react";
 import axios from "axios"
 import { useState,useEffect,useContext } from 'react'
-import { useParams } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams  } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroll-component";
 
 import CommentSection from "../../features/comment/commentSection.component";
 import CommentForm from "../../features/comment/commentForm.component";
+import LoadingPage from "../../features/loading.component";
+
 import { CommentsProvider } from "../../context/comments.context";
 import VideoPlayer from "../../features/video/video_player.component";
 import spinner from '../../../assets/images/xspinner.svg'
@@ -26,7 +27,8 @@ const VideoPage = ()=>{
     const [videosSidebar,setVideosSidebar]=useState(null);
     const [likeFavSub,setLikeFavSub]=useState(null)
     const [comments,setComments]=useState(null);
-    const [disableInp,setDisableInp] = useState(true)
+    const [disableInp,setDisableInp] = useState(true);
+    const [loading,setLoading]=useState(true);
     const handleDisableInp=(e)=>{
     }
                 
@@ -80,6 +82,7 @@ const VideoPage = ()=>{
         })
         .catch(error=>console.log(error))
     }
+    
     useEffect(()=>{
         if(videoId){
             async function fetchData() {
@@ -88,6 +91,7 @@ const VideoPage = ()=>{
                     if(data.video){
                         setChannelMain(data.channel)
                         setVideoMain(data.video)
+                        setLoading(false)
                     }
 
                     const res=await axios.get(`/api/get-videos-sidebar/?videoId=${data.video._id}&channelId=${data.video.channelId}&categoryId=${data.video.categoryId}&pagination=0`)
@@ -104,7 +108,8 @@ const VideoPage = ()=>{
             clearTimeout(timeOutIncViews)
              )   
     },[videoId])
-       useEffect(()=>{
+
+    useEffect(()=>{
         if(user){
             async function fetchLikeSub() {
                 try {
@@ -117,6 +122,13 @@ const VideoPage = ()=>{
         }
             
     },[user])
+
+    useEffect(()=>{
+        if(user&&videoMain){
+            axios.post(`/api/channel/add-history`,{id:user.id,videoId:videoMain._id})
+        }
+    },[user,videoMain])
+
     const onIcreaseViews=()=>{
         console.log("update views")
         if(videoMain)
@@ -125,7 +137,12 @@ const VideoPage = ()=>{
     }
     return(
         <div className="video-container">
-            {videoMain
+            {loading
+            ?<>
+                <LoadingPage/>
+            </>
+            
+            :videoMain
                 ?<>
                     <div className="primary">
                         <div className="wrapper">

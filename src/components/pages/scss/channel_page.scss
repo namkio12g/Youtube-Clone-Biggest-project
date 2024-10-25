@@ -31,10 +31,18 @@
             color: $black-primary;
             background-color: $text-color;
             font-weight: 600;
-            border-radius: 1.5rem;
-            padding: 0.5rem 0.7rem;
+            border-radius: 0.5rem;
+            padding: 0.8rem 1rem;
             &:hover{
                 background-color: rgb(189, 198, 205);
+            }
+            &.active{
+                 background-color: rgb(148, 200, 69);
+                 color: black;
+                 &:hover{
+                    background-color: rgb(155, 215, 66);
+
+                 }
             }
         }
     .featured-section{
@@ -77,6 +85,12 @@
             }
             
         }
+         .videos-seciton{
+            background-color: red;
+            .infinite-scroll-component{
+                overflow: visible !important;
+            }
+    }
         .video{
             margin-bottom: 2.5rem;
             .video-thumbnail{
@@ -108,9 +122,14 @@
             margin-top: 1rem;
             display: flex;
             flex-direction: row;
-            .video-player{
+            .video-wrapper{
                 width: 430px;
-                padding: 0;
+                max-height: 247px;
+                overflow: hidden;
+                    video{
+                    object-fit: cover;
+                    
+                }
             }
             .video-info{
                 margin-left: 20px;
@@ -199,9 +218,13 @@
                 font-weight: 500;
                 color: gray;
             }
+            .video-info{
+                width: 190px;
+            }
         }
         
     }
+   
 }
 @media only screen and (max-width:700px) {
     .channel-container{

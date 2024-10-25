@@ -25,23 +25,25 @@ const Sidebar = ({sidebar})=>{
                 <li onClick={()=>gotToNewPage("/")} >
                     <RiHome2Line size={20} /><span> Home </span>
                 </li>
-                 <li onClick={()=>gotToNewPage("/channel/")}>
+                 {/* <li onClick={()=>gotToNewPage("/channel/")}>
                     <BiSolidCategory size={20}/><span> Categories </span>
-                </li>
-                 <li onClick={()=>gotToNewPage("/subcription")}>
-                    <MdOutlineSubscriptions size={20}/><span> Subscriptions </span>
-                </li >
-                 <li onClick={()=>gotToNewPage("/videos-liked")}>
-                    <BiLike size={20}/><span> Liked </span>
-                </li>
+                </li> */}
+                 
                  <li onClick={()=>gotToNewPage("/history")}>
-                    <BsClockHistory size={20}/><span> History </span>
+                            <BsClockHistory size={20}/><span> History </span>
                 </li>
-                 <li onClick={()=>gotToNewPage("/videos-manager")}>
-                    <FaRegHeart size={20}/><span> Favourites </span>
-                </li>
-                {user?
+                  {user?
                      <>
+                        <li onClick={()=>gotToNewPage("/subcription")}>
+                            <MdOutlineSubscriptions size={20}/><span> Subscriptions </span>
+                        </li >
+                        <li onClick={()=>gotToNewPage("/videos-liked")}>
+                            <BiLike size={20}/><span> Liked </span>
+                        </li>
+                       
+                        <li onClick={()=>gotToNewPage("/favourite-videos")}>
+                            <FaRegHeart size={20}/><span> Favourites </span>
+                        </li>
                         <hr />
                         <li>
                             <RiLogoutBoxLine size={20}/><span> Log out </span>

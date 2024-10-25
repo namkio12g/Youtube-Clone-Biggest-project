@@ -5,6 +5,7 @@ import axios from "axios";
 
 import { BiSolidCategory } from "react-icons/bi";
 
+import LoadingPage from "../../features/loading.component";
 import VideoThumbnail from "../../features/video/video_thumbnail.component"; 
 
 import Row from 'react-bootstrap/Row';
@@ -17,6 +18,7 @@ import "react-multi-carousel/lib/styles.css";
 
 const Home = ({handleToggleSideBar})=>{
     let TimeOut;
+    const [loading,setLoading]=useState(true);
 
     const [pagination,setPagination]=useState(0)
     const [data,setData]=useState(null)
@@ -111,7 +113,7 @@ const Home = ({handleToggleSideBar})=>{
                 </div>
                 <div className="videos-section">
                             {data
-                                ?<InfiniteScroll dataLength={data.length} className="" next={handleMoreData} hasMore={hasMore} loader={<h4>Loading...</h4>}>
+                                ?<InfiniteScroll dataLength={data.length} className="" next={handleMoreData} hasMore={hasMore} loader={<LoadingPage/>}>
                                     <Row>    
                                         {data.map((item,index)=>(
                                         <Col md={6} xl={4} key={index}>
@@ -123,7 +125,7 @@ const Home = ({handleToggleSideBar})=>{
                                     </Row>
                                 </InfiniteScroll>
                                 :<>
-                                    <div> <span>Loaing....</span></div>
+                                    <LoadingPage/>
                                 </>
                     }
                 </div>

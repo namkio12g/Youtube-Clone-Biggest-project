@@ -1,6 +1,25 @@
 @import '../../base';
 .video-wrapper{
     position: relative;
+    video:-webkit-full-screen {
+        width: 100% !important; 
+        height: 100% !important;
+        }
+
+    video:-moz-full-screen {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    video:-ms-fullscreen {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    video:fullscreen {
+        width: 100% !important;
+        height: 100% !important;
+    }
 }
 .responsive-video {
     width: 100%;

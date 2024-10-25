@@ -20,7 +20,19 @@ module.exports = (app, channel) => {
             const parentId = req.body.parentId;
             const videoId = req.body.videoId;
             const comment = await service.createComment(videoId, channelId, parentId, content);
-            const msg = {
+            var msg = {
+                  event: "ADJUST_VIDEO_COMMENT_COUNT",
+                  data: {
+                      amount:1,
+                      videoId:videoId
+                  }
+              }
+            PushlishMSGNoReply(channel,msg,"video")
+
+
+
+
+            msg = {
                 event: "GET_COMMENTS_INFO_AND_CHANNEL_COMMENTSLIKE",
                 data: {
                     channelId: null,
@@ -61,7 +73,17 @@ module.exports = (app, channel) => {
             if (result.deletedCount==0){
                 next(new CustomError("Cant find comment Id",404))
             }
-            const msg = {
+            var msg = {
+                event: "ADJUST_VIDEO_COMMENT_COUNT",
+                data: {
+                    amount: -1,
+                    videoId: videoId
+                }
+            }
+            PushlishMSGNoReply(channel, msg, "video")
+
+
+            msg = {
                 event: "DELETE_COMMENT_LIKE",
                 data: {
                     commentId: commentId

@@ -62,7 +62,7 @@ const VideoPlayer = ({video,onIcreaseViews=null})=>{
 
     const [speed, setSpeed] = useState(1);
     const [volume, setVolume] = useState(0.5);
-    const [isPlaying, toggleIsPlaying] = useState(true);
+    const [isPlaying, toggleIsPlaying] = useState(onIcreaseViews?true:false);
     const [isFullScreen, toggleIsFullScreen] = useState(false);
     const [duration, setDuration] = useState(0);
     const [currTime, setCurrTime] = useState(0);

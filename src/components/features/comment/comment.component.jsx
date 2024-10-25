@@ -53,7 +53,7 @@ const Comment =({comment,areReplied})=>{
                     <span className="">{comment.likesCount}</span>
                     {!areReplied? <FaReply size={17} onClick={()=>setFormActive(prev=>!prev)}/>:<></>}
 
-                    { user?(user.id!=comment.channelId
+                    { user?(user.id==comment.channelId
                         ?
                             <>
                                 <AiFillEdit  size={20} onClick={()=>setIsEditting(prev=>!prev)}/>

@@ -75,6 +75,7 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
                 }
                 else{
                     channel.cancel(consumerTag);
+                    reject("no data");
                 }
             }, {
                 noAck:true,
@@ -97,7 +98,8 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
 
 module.exports.SubcribeMSG = async (channel, service) => {
     const q = await channel.assertQueue("", {
-        exclusive: true
+        exclusive: true,
+        durable:false
     });
     channel.bindQueue(q.queue, EXCHANGE_NAME, VIDEO_SERVICE)
     channel.consume(q.queue, async(msg) => {

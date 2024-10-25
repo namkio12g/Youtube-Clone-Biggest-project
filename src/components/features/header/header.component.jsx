@@ -19,17 +19,27 @@ const Header = ({handleToggleSideBar})=>{
     const [infoUserBoxActive,setInfoUserBoxActive]=useState(false);
     const navigate = useNavigate()
     const gotToChannelPage=()=>{
-        navigate("/channel");
+        navigate(`/channel/${user.id}`);
     }
     const handleSearchAcvtive=()=>{
         setSearchActive(prev=>!prev)
     }
     const handleInfoUserBoxActive=()=>{
-        setInfoUserBoxActive(prev=>!prev)
+        setInfoUserBoxActive(true)
     }
     const handleAuthGoogle=(e)=>{
        
     }
+    const getRidOfInfoUserBox=()=>{
+                setInfoUserBoxActive(false);
+        }
+    useEffect(()=>{
+        
+        document.addEventListener("click",getRidOfInfoUserBox);
+        return ()=>{
+            document.removeEventListener("click",getRidOfInfoUserBox);
+        }
+    },[])
     return(
         <Row className=" header">
             <Col lg={8} md={10} sm={9} xs={8} className="left-side">

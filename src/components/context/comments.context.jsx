@@ -80,8 +80,7 @@ async function toggleLikeComment(id){
   function LikeCommentUpdate(commentId,flag){
     setComments(prevComments=>{
       return prevComments.map(comment=>{
-        console.log(flag)
-        if(comment._id==comment.id)
+        if(comment._id==commentId)
           return {...comment,likedByMe:flag,likesCount:flag?comment.likesCount+1:comment.likesCount-1}
         return comment
       })

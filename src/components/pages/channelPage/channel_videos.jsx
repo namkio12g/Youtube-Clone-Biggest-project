@@ -3,82 +3,108 @@ import { useState,useEffect } from 'react'
 
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
+import LoadingPage from "../../features/loading.component";
 
+import InfiniteScroll from "react-infinite-scroll-component";
 import VideoPlayer from "../../features/video/video_player.component";
 import video from "../music.mp4"
 import '../scss/channel_page.scss'
-const Videos = ()=>{
-
-
-        
-        const items=[
+import axios from "axios";
+const Videos = ({channelId})=>{
+    let TimeOut;
+    const [data,setData]=useState(null);
+    const [loading,setLoading]=useState(null);
+    const [find,setFind]=useState("time-desc");
+    const [pagination,setPagination]=useState(0)
+    const [hasMore,setHasMore]=useState(true)
+    const findSelections=[
         {
-            thumbnail:"https://i.ytimg.com/vi/DtBPnnWHR-Y/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBwOfSm8rpmWUE3aDeiQiuNhb-WRw",
-            title:"Nicon Corporation",
-            view:2500,
-            time:"22:43"
+        name:"Mới nhất",
+        value:"time-desc"
+        },{
+        name:"Cũ nhất",
+        value:"time-asc"
+        },{
+        name:"Phổ biến",
+        value:"views"
         },
-         {
-            thumbnail:"https://img.freepik.com/free-vector/modern-youtube-background-thumbnail-with-papercut-effect_1361-2739.jpg",
-            title:"Canon EOS REBEL",
-            view:6543,
-            time:"59:43"
-        },
-         {
-            thumbnail:"https://img.freepik.com/free-psd/creative-youtube-thumbnail-design-template_505751-6054.jpg",
-            title:"Nicon unilll",
-            view:7789,
-            time:"11:43"
-        },
-         {
-            thumbnail:"https://i.ytimg.com/vi/WzDmoTydaEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAdjWUCBXuCPTYOaERM1cVXjs3H8A",
-            title:"Sony , ILCE-7M2",
-            view:2501,
-            time:"01:43"
-        },
-         {
-            thumbnail:"https://img.freepik.com/free-psd/education-template-design_23-2151095367.jpg",
-            title:"Template Duecation",
-            view:5500,
-            time:"05:43"
-        }, {
-            thumbnail:"https://img.freepik.com/free-psd/e-learning-template-design_23-2151081798.jpg",
-            title:"Your learn lets learn",
-            view:25000,
-            time:"11:03"
-        }
-        , {
-            thumbnail:"https://img.freepik.com/premium-psd/youtube-thumbnail-design-cover-design-template_941802-3172.jpg",
-            title:"Nicon Corporation version 1",
-            view:44000,
-            time:"07:56"
-        }
     ]
+    const handleMoreData=()=>{
+        setPagination(prev=>prev+1)
+        axios.get(`/api/channel-videos/${find}`,{params:{channelId:channelId,pagination:pagination+1}})
+        .then(res=>{
+            if(res.data.length==0)
+                setHasMore(false)
+            clearTimeout(TimeOut);
+            TimeOut=setTimeout(() => {
+                    setData(data.concat(res.data))
+                
+            }, 500);
+            })
+        .catch(error=>console.error("Error:",error))
+   }
+
+
+    useEffect(()=>{
+            async function fetchData(){
+                await axios.get(`/api/channel-videos/${find}`,{params:{channelId:channelId,pagination:pagination}})
+                .then(res=>{setData(res.data);setLoading(false)})
+                .catch(err=>{console.log(err);setLoading(false)})
+            }
+            if(channelId){
+                setLoading(true);
+                fetchData();
+            }
+    },[channelId,find])
+    
+  
 return(
     <>
+     {loading
+       ?<>
+        <LoadingPage/>
+       </>
+       :<>
         <div className="button-section">
-            <button className="active">Mới nhất</button>
-            <button>Phổ biến</button>
-            <button>Cũ nhất</button>
+            {
+                findSelections.map((item)=>(
+                     <button className={`${item.value==find?"active":""}`} onClick={()=>{setFind(item.value),setPagination(0)}}>{item.name}</button>
+                ))
+            }
         </div>
         <div className="videos-seciton">
-            <Row className="videos-row">
-                {
-                    items.map((item,index)=>(
-                        <Col lg={3} className="video-col">
-                            <div className="video ">
-                                <img  className="video-thumbnail" src={item.thumbnail} alt="" />
-                                <div className="video-info d-flex flex-column">
-                                    <span className="video-title">{item.title}</span>
-                                    <span className="views-time">50 N lượt xem • 10 ngày trước</span>
-                                </div>
-                            </div>
+            {data
+                ?<InfiniteScroll dataLength={data.length} className="" next={handleMoreData} hasMore={hasMore} loader={<LoadingPage/>}>
+                    <Row className="videos-row">
+                        {
 
-                        </Col>
-                    ))
-                }
-            </Row>
+                            data.map((item,index)=>(
+                                <Col lg={3} sm={6} md={4} className="video-col">
+                                    <div className="video ">
+                                        <img  className="video-thumbnail" src={item.thumbnail} alt="" />
+                                        <div className="video-info d-flex flex-column">
+                                            <span className="video-title">{item.title}</span>
+                                            <span className="views-time">50 N lượt xem • 10 ngày trước</span>
+                                        </div>
+                                    </div>
+
+                                </Col>
+                            ))
+                        }
+                    </Row>
+                </InfiniteScroll>
+                :<>
+                    <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
+                        {/* <VscRunErrors size={40}  className="mx-3"/> */}
+                        <h2>This channel doesn't have any videos</h2>
+                    </div>
+                
+                
+                </>
+            }
         </div> 
+        </>
+     }
     </>
 )
 }

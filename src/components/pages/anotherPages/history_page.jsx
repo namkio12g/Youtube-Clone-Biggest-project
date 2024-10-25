@@ -1,13 +1,15 @@
 import React from "react";
-import { useState,useEffect } from 'react'
+import { useState,useEffect, useContext  } from 'react'
+import { Link } from 'react-router-dom';
 
 import VideoPlayer from "../../features/video/video_player.component";
-
-import { MdDelete } from "react-icons/md";
+import {UserContext} from "../../context/user.context"
+import { MdDelete,MdHistory } from "react-icons/md";
 import { FaFire,FaCheck } from "react-icons/fa";  
-
+import LoadingPage from "../../features/loading.component";
 import '../scss/history_page.scss'
 import video from "../music.mp4"
+import axios from "axios";
 const HistoryPage=()=>{
     const items=[
         {
@@ -52,36 +54,82 @@ const HistoryPage=()=>{
             time:"07:56"
         }
     ]
+    const {user}=useContext(UserContext);
+    const [data,setData]=useState(null);
+    const [loading,setLoading]=useState(null);
+    const [error,setError]=useState(null);
+    
+    const hanldeRemoveHistory=async(videoId)=>{
+        await axios.delete(`/api/channel/remove-history`,{ data:{videoId:videoId,id:user.id}})
+        .then(res=>{
+            setData(prevVideos=>{
+                return prevVideos.filter(video=>video._id!==videoId)
+            })
+        })
+        .catch(error=>console.log(error))
+    }
+    useEffect(()=>{
+         async function fetchData(channelId){
+            await axios.get(`/api/channel/history/${channelId}`)
+            .then(res=>{setData(res.data);console.log(res);setLoading(false)})
+            .catch(error=>{setError(error),console.log(error)})
+            
+        }
+        if(user){
+            setLoading(true);
+            fetchData(user.id)
+        }
+    },[user])
     return(
         <>  
-            <div className="history-page">
-                <span className="page-title">Nhật ký xem</span>
-                <div className="videos mt-4 d-flex flex-column">
-                    {
-                        items.map((item,index)=>(
-                            <>
-                                <div className="item mb-4 d-flex flex-row">
-                                    <img src={item.thumbnail} alt="" />
-                                    <div className="video-info d-flex flex-column">
-                                        <span className="title">{item.title} </span>
-                                       <div className="channelTitle-view">
-                                                <span>Einzelgänger</span>
-                                                <FaCheck className="check-icon ms-1"/>   
-                                                <span> • </span>
-                                                <FaFire className="view-icon me-1   "/> 
-                                                <span>2,3 Tr lượt xem</span>
-                                                  
-                                        </div>
-                                        <span className="descriptions">Lorem ipsum dolor sit amet consectetur adipisicing elit. Nobis, architecto quisquam est harum voluptatum nisi quis veritatis sequi! Autem eos reiciendis cupiditate excepturi velit unde blanditiis pariatur libero sunt ipsam. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Hic, earum odit! Dicta, harum consequuntur sapiente necessitatibus est laboriosam facilis sint tenetur, beatae officiis quae deserunt qui expedita dolor exercitationem perferendis?</span>
+            {user?
+                loading
+                ?<>
+                    <LoadingPage/>
+                </>
+                :<div className="history-page">
+                    <span className="page-title">Nhật ký xem</span>
+                    <div className="videos mt-4 d-flex flex-column">
+                        {data
+                            ?data.map((item,index)=>(
+                                <>
+                                    <div className="item mb-4">
+                                         <Link to={`/video/${item._id}`} style={{ textDecoration: 'none' }}>
+                                            <div className="d-flex flex-row">
+                                                <img src={item.thumbnail} alt="" />
+                                                <div className="video-info d-flex flex-column">
+                                                    <span className="title">{item.title} </span>
+                                                <div className="channelTitle-view">
+                                                            <span>{item.channelTitle}</span>
+                                                            <FaCheck className="check-icon ms-1"/>   
+                                                            <span> • </span>
+                                                            <FaFire className="view-icon me-1   "/> 
+                                                            <span>{item.views} lượt xem</span>
+                                                            
+                                                    </div>
+                                                    <span className="descriptions">{item.description}</span>
+                                                </div>
+                                            </div>
+                                        </Link>
+                                        <MdDelete className="delete-button" size={33} onClick={()=>hanldeRemoveHistory(item._id)}/>
                                     </div>
-                                    <MdDelete className="delete-button" size={33}/>
-                                </div>
-                            </>
-                        ))
-                    }
-                    
+                                </>
+                            ))
+                            :<></>
+                        }
+                        
+                    </div>
                 </div>
-            </div>
+            :<>
+                <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
+                    <MdHistory size={40}  className="mx-3"/>
+                    <div>
+                        <h2>Keep track of what you watch</h2>
+                        <h5>Login First</h5>
+                    </div>
+                </div>
+            </>
+            }
         </>
     )
 }

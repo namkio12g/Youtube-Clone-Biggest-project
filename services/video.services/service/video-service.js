@@ -31,21 +31,21 @@ class channelService{
 
     async getChannelHomeVideos(channelId){
         try {
-            const newVideos=await this.videoRepo.findVideos({channelId:channelId,status:"ready",modeView:"public"},{createdAt:"desc"},0,6)
+            const newVideos=await this.videoRepo.findVideos({channelId:channelId,status:"ready",modeView:"public"},{createdAt:"desc"},0,8)
             const mostViewsVideos = await this.videoRepo.findVideos({
                 channelId: channelId,
                 status: "ready",
                 modeView: "public"
             }, {
                 views: "desc"
-            }, 0, 6)
+            }, 0, 8)
             const mostLikedVideos = await this.videoRepo.findVideos({
                 channelId: channelId,
                 status: "ready",
                 modeView: "public"
             }, {
                 likesCounts: "desc"
-            }, 0, 6)
+            }, 0, 8)
             return {
                 newVideos:newVideos,
                 mostViewsVideos:mostViewsVideos,
@@ -55,9 +55,9 @@ class channelService{
             throw error
         }
     }
-    async getChannelVideos(channelId,sort){
+    async getChannelVideos(channelId,sort,pagination){
         try {
-            const videos=await this.videoRepo.findVideos({channelId:channelId,status:"ready",modeView:"public"},sort,0,8)
+            const videos=await this.videoRepo.findVideos({channelId:channelId,status:"ready",modeView:"public"},sort,pagination,8)
             return videos;
         } catch (error) {
             throw error
@@ -239,6 +239,18 @@ class channelService{
             throw error;
         }
     }
+    async adjustCommentsCount(amount, videoId){
+        try {
+            const video = await this.videoRepo.updateVideo(videoId, {
+                $inc: {
+                    commentsCount: amount
+                }
+            })
+            return formatData(video)
+        } catch (error) {
+            throw error;
+        }
+    }
   async SubcribeEvent(payload) {
       payload = JSON.parse(payload)
       const {
@@ -255,6 +267,9 @@ class channelService{
           amount
       } = data;
       switch (event) {
+        case "ADJUST_VIDEO_COMMENT_COUNT":
+            return await this.adjustCommentsCount(amount, videoId);
+            break;
         case "ADJUST_LIKES":
            return await this.adjustLikes(amount,videoId);
            break;

@@ -10,7 +10,16 @@ module.exports=(app,passport,channel)=>{
     function isLoggedIn(req, res, next) {
         req.user ? next() : res.sendStatus(401)
     }
-    
+    app.get("/get-channel-info-page/:id",async (req,res,next)=>{
+        try {
+            const channleId=req.params.id;
+            const userId=req.query.userId;
+            const channel=await service.getChannelInfoPage(channleId,userId);
+            res.json(channel)
+        } catch (error) {
+            next(error);
+        }
+    })
     // -------------------hisory--------------------///
     app.delete("/remove-history",async (req,res,next)=>{
         try {
@@ -32,7 +41,6 @@ module.exports=(app,passport,channel)=>{
             const videoIds=channelUser.history.map((item)=>{
                 return item.videoId
             })
-            console.log(videoIds)
             const payload = {
                 event: "GET_VIDEOS_INFO",
                 data: {
@@ -48,12 +56,16 @@ module.exports=(app,passport,channel)=>{
                     acc[item.videoId.toString()] = item.createdAt;
                     return acc;
                 }, {});
-            videos = videos.map(video => {
-                    return {
-                        ...video,
-                        createAt: videosMap[video._id.toString()],
-                    };
-                });
+
+            videos=await Promise.all( videos.map(async(video)=>{
+                const channel=await service.getChannelInfo(video.channelId)
+                return{
+                    ...video,
+                    createAt: videosMap[video._id.toString()],
+                    channelTitle:channel[0].title
+                }
+            }))
+
             res.json(videos)
         } catch (error) {
             next(error)
@@ -106,6 +118,14 @@ module.exports=(app,passport,channel)=>{
             }
             const response = await PushlishMSGWithReply(channel, payload, "video");
             var videos = JSON.parse(response)
+            videos = await Promise.all(videos.map(async (video) => {
+                const channel = await service.getChannelInfo(video.channelId)
+                return {
+                    ...video,
+       
+                    channelTitle: channel[0].title
+                }
+            }))
             res.json(videos)
         } catch (error) {
             next(error)
@@ -138,6 +158,7 @@ module.exports=(app,passport,channel)=>{
     // ------------------favourite videos--------------------///
     app.delete("/remove-favourite-videos", async (req, res, next) => {
         try {
+
             const channelId = req.body.id;
             const videoId = req.body.videoId;
             const response = await service.removeFavouriteVideos(channelId, videoId)
@@ -152,8 +173,7 @@ module.exports=(app,passport,channel)=>{
             const channelId = req.params.id;
             const channelUser = await service.getOneChannel(channelId);
             if (!channelUser)
-                next(new CustomError("cant find channel", 404))
-            console.log(channelUser.favouriteVideos)
+                   next(new CustomError("cant find channel", 404))
             const payload = {
                 event: "GET_VIDEOS_INFO",
                 data: {
@@ -162,6 +182,13 @@ module.exports=(app,passport,channel)=>{
             }
             const response = await PushlishMSGWithReply(channel, payload, "video");
             var videos = JSON.parse(response)
+            videos = await Promise.all(videos.map(async (video) => {
+                const channel = await service.getChannelInfo(video.channelId)
+                return {
+                    ...video,
+                    channelTitle: channel[0].title
+                }
+            }))
             res.json(videos)
         } catch (error) {
             next(error)
