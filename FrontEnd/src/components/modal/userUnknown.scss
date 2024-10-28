@@ -1,0 +1,21 @@
+.user-unknown-modal{
+    display: none;
+    padding: 1.5rem 1rem;
+    position: fixed;
+    height: 180px;
+    width: 330px;
+    color:white ;
+    background-color: rgb(35, 34, 34);
+    box-shadow: 0 5px 10px 2px rgb(48, 48, 48);
+    z-index: 3;
+    *{
+        background-color: transparent;
+    }
+    &.active{
+        display: flex;
+    }
+    a{
+        text-decoration: none;
+        font-size: 1.1rem;
+    }
+}
