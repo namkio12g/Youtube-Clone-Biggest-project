@@ -1,3 +1,5 @@
+# GET MORE DETAIL IN MY PORTFOLIO : https://namkio12g.github.io/portfolio/
+
 # Progresss
 
 This Readme shows you what i have been doing
