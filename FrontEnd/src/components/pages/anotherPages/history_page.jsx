@@ -69,11 +69,12 @@ const HistoryPage=()=>{
         .catch(error=>console.log(error))
     }
     useEffect(()=>{
+        console.log("123")
          async function fetchData(channelId){
             await axios.get(`/api/channel/history/${channelId}`)
             .then(res=>{setData(res.data);console.log(res);setLoading(false)})
-            .catch(error=>{setError(error),console.log(error)})
-            
+            .catch(error=>{setError(error);setLoading(false);console.log(error)})
+        
         }
         if(user){
             setLoading(true);
@@ -90,7 +91,7 @@ const HistoryPage=()=>{
                 :<div className="history-page">
                     <span className="page-title">Nhật ký xem</span>
                     <div className="videos mt-4 d-flex flex-column">
-                        {data
+                        {data&&data.length!=0
                             ?data.map((item,index)=>(
                                 <>
                                     <div className="item mb-4">
@@ -115,7 +116,11 @@ const HistoryPage=()=>{
                                     </div>
                                 </>
                             ))
-                            :<></>
+                            :<>
+                                <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
+                                    <h2>Cant find video</h2>
+                                </div>
+                            </>
                         }
                         
                     </div>

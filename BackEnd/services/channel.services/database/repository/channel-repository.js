@@ -118,6 +118,14 @@ class channelRepository{
             throw error
         }
     }
+      async findChannelsWithPagination(find, sort,pagination,number=6) {
+          try {
+              const channels = await channelModel.find(find).sort(sort).skip(pagination*number).limit(number);
+              return channels;
+          } catch (error) {
+              throw error
+          }
+      }
     async findChannelsWithFields(find,fields) {
         try {
             const channels = await channelModel.find(find).select(fields)

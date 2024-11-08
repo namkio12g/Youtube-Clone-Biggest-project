@@ -84,7 +84,7 @@ return(
                                         <img  className="video-thumbnail" src={item.thumbnail} alt="" />
                                         <div className="video-info d-flex flex-column">
                                             <span className="video-title">{item.title}</span>
-                                            <span className="views-time">50 N lượt xem • 10 ngày trước</span>
+                                            <span className="views-time">{item.views} lượt xem • {item.timeDifferenceText}</span>
                                         </div>
                                     </div>
 

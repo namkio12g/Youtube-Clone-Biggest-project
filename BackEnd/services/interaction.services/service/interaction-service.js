@@ -59,18 +59,26 @@ class interactionService{
             throw error;
         }
     }
-     async adjustLikes(amount, commentId) {
+    async findOne(commentId){
+        try {
+            return (await this.commentRepo.findOne({_id:commentId}))
+        } catch (error) {
+            throw error;
+        }
+    }
+     async adjustLikes(amount, commentId, channelInteractionId) {
          try {
              const comment = await this.commentRepo.updateComment({_id:commentId}, {
                  $inc: {
                      likesCount: amount
                  }
              })
+            
          } catch (error) {
              throw error;
          }
      }
-    async SubcribeEvent(payload) {
+    async SubscribeEvent(payload) {
         payload = JSON.parse(payload)
         const {
             event,
@@ -78,11 +86,12 @@ class interactionService{
         } = payload;
         const {
             commentId,
-            amount
+            amount,
+            channelInteractionId
         } = data;
         switch (event) {
             case "ADJUST_LIKES":
-                return await this.adjustLikes(amount, commentId);
+                return await this.adjustLikes(amount, commentId, channelInteractionId);
                 break;
 
 

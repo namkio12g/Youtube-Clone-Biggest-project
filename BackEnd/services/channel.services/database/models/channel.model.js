@@ -15,7 +15,7 @@ const channelSchema=new Schema({
         type: String,
         default: ""
     },
-    subcribersCount: {
+    subscribersCount: {
         type: Number,
         default: 0
     },
@@ -55,7 +55,7 @@ const channelSchema=new Schema({
          type: [String],
          default: []
      },
-    channelSubcribed: {
+    channelSubscribed: {
         type: [String],
         default: []
     },

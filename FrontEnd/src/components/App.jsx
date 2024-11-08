@@ -9,6 +9,7 @@ import VideosLikedPage from './pages/anotherPages/videosLiked_page';
 import FavoureVideosPage from './pages/anotherPages/favourites_page';
 
 import VideosManager from './pages/anotherPages/videosManager_page';
+import SearchedPage from './pages/anotherPages/search_page';
 
 import Subcription from './pages/anotherPages/channelSubcription_page';
 import ChannelPage from './pages/channelPage/channel_layout';
@@ -18,6 +19,7 @@ import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserProvider } from './context/user.context';
+import {SearchProvider} from './context/search.content'
 function App() {
   
   const Layout=({children})=>{
@@ -27,11 +29,13 @@ function App() {
     return(
       <>
       <UserProvider>
-          <Header handleToggleSideBar={handleToggleSideBar}/> 
-          <Sidebar sidebar={sidebar}/>
-          <div className={sidebar?"app_container sidebar-active":"app_container"}> 
-              {children}
-          </div> 
+          <SearchProvider>
+            <Header handleToggleSideBar={handleToggleSideBar}/> 
+            <Sidebar sidebar={sidebar}/>
+            <div className={sidebar?"app_container sidebar-active":"app_container"}> 
+                {children}
+            </div> 
+          </SearchProvider>
       </UserProvider>
       </>
     )
@@ -92,6 +96,14 @@ function App() {
                 element={
                   <Layout>
                        <FavoureVideosPage/>
+                  </Layout>
+                }
+                >
+          </Route>
+           <Route path="/search"
+                element={
+                  <Layout>
+                       <SearchedPage/>
                   </Layout>
                 }
                 >

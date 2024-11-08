@@ -99,7 +99,7 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
 
 };
 
-module.exports.SubcribeMSG = async (channel, service) => {
+module.exports.SubscribeMSG = async (channel, service) => {
     const q = await channel.assertQueue("", {
         exclusive: true
     });
@@ -107,7 +107,7 @@ module.exports.SubcribeMSG = async (channel, service) => {
     channel.consume(q.queue, async (msg) => {
         if (msg.content) {
             if (msg.properties.replyTo) {
-                var response = await service.SubcribeEvent(msg.content.toString());
+                var response = await service.SubscribeEvent(msg.content.toString());
                 response = JSON.stringify(response)
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,
@@ -116,7 +116,7 @@ module.exports.SubcribeMSG = async (channel, service) => {
                 return;
             }
             console.log("im here");
-            service.SubcribeEvent(msg.content.toString())
+            service.SubscribeEvent(msg.content.toString())
 
         }
     }, {

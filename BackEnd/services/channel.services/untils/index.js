@@ -32,6 +32,13 @@ module.exports.generateJWTToken = (email, id) => {
         , process.env.JWTSECRETKEY, {expiresIn: '1h'});
     return token;
 }
+module.exports.destroyJWTToken=(token)=>{
+    try {
+        jwt.destroy(token);
+    } catch (error) {
+        throw error;
+    }
+}
 module.exports.formatData = (data) => {
     if (data) {
         return data;
@@ -120,13 +127,13 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
 
 };
 
-module.exports.SubcribeMSG=async(channel,service)=>{
+module.exports.SubscribeMSG=async(channel,service)=>{
     const q =await channel.assertQueue("",{exclusive:true});
     channel.bindQueue(q.queue,EXCHANGE_NAME,CHANNEL_SERVICE)
     channel.consume(q.queue,async(msg)=>{
         if(msg.content){
             if(msg.properties.replyTo){
-                var response = await service.SubcribeEvent(msg.content.toString());
+                var response = await service.SubscribeEvent(msg.content.toString());
                 response=JSON.stringify(response)
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,
@@ -136,7 +143,7 @@ module.exports.SubcribeMSG=async(channel,service)=>{
             }
             else{
 
-               service.SubcribeEvent(msg.content.toString())
+               service.SubscribeEvent(msg.content.toString())
             }
         }
     },{noAck:true});

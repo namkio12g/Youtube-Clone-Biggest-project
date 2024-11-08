@@ -66,9 +66,9 @@ async function updateComment(content,parentId,id){
     }).then(res=>{updateCommentLocal(res.data._id,res.data.content)})
 
   }
-async function toggleLikeComment(id){
+async function toggleLikeComment(id,commentChannelId,videoId){
     await axios.post("/api/channel/add-comment-liked",{
-      channelId:channelId,commentId:id
+      channelId:channelId,commentId:id,commentChannelId:commentChannelId,videoId:videoId
     }).then(res=>{LikeCommentUpdate(id,res.data.addFlag)})
 
   }

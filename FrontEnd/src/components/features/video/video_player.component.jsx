@@ -199,6 +199,7 @@ const VideoPlayer = ({video,onIcreaseViews=null})=>{
 
      useEffect(()=>{
             if(videoWrapperRef.current){
+                videoRef.current.volume = volume;
                 videoWrapperRef.current.addEventListener('mousemove', handleUserActivity);
                 videoWrapperRef.current.addEventListener('touchmove', handleUserActivity);
             }
@@ -230,14 +231,11 @@ const VideoPlayer = ({video,onIcreaseViews=null})=>{
         if(onIcreaseViews){
             videoRef.current.play()
             const restartTime=()=>{
-                console.log("set")
-                console.log(video.duration/2.5*1000)
                 timerRef.current= setTimeout(() => {
                 onIcreaseViews()
              }, video.duration/2.5*1000);
             }
             const resetTimer = () => {
-                console.log("set1")
 
             clearTimeout(timerRef.current); 
             }
@@ -313,7 +311,7 @@ const VideoPlayer = ({video,onIcreaseViews=null})=>{
 
                 </div>
             </div>
-            <video ref={videoRef} src={video.videoUrl[0].url} className="responsive-video" onClick={handleIsPlaying} onTimeUpdate={handleVideoTimeUpdate}onLoadedMetadata={handleLoadedMetadata}></video>
+            <video ref={videoRef} src={video.videoUrl[0].url} className="responsive-video" onClick={handleIsPlaying} onTimeUpdate={handleVideoTimeUpdate}onLoadedMetadata={handleLoadedMetadata} autoplay></video>
         </div>
     )
 }

@@ -25,24 +25,26 @@ const ChannelPage = ()=>{
     const {user}=useContext(UserContext)
     const [channel,setChannel]=useState(null);
     const [site,setSite]=useState("features")
-
-    const handleSubcribeButton=async ()=>{
+    
+    const handleSubscribeButton=async ()=>{
         if(user&&channel)
-            await axios.post(`/api/channel/subcribe-channel`,{channelId:user.id,channelSucribedId:channel._id})
+            await axios.post(`/api/channel/subscribe-channel`,{channelId:user.id,channelSucribedId:channel._id})
             .then(res=>{
-                setChannel(prev=>({...prev,subcribedByMe:res.data.addFlag}))
+                setChannel(prev=>({...prev,subscribedByMe:res.data.addFlag}))
             })
             .catch(error=>console.log(error))
+        else
+            alert("sign in first!")
 
     }
     useEffect(()=>{
         if(channelId){
             axios.get(`/api/channel/get-channel-info-page/${channelId}`,{params:{userId:user?user.id:null}})
-            .then(res=>setChannel(res.data))
+            .then(res=>{console.log(res),setChannel(res.data)})
             .catch(err=>console.log(err))
         }
-
-    },[channelId])
+        console.log(channel)
+    },[channelId,user])
 
 
     const Layout=({children})=>{
@@ -56,16 +58,18 @@ const ChannelPage = ()=>{
                         <img className="profile-picture" src={channel.profilePicture} alt="" />
                         <div className="profile-info d-flex flex-column ms-4">
                             <span className="title fs-1">{channel.title}</span>
-                            <span className="email-subcribe-video"> {channel.subcribersCount} người đăng ký • {channel.videosCount} video</span>
-                            {user
-                                ?user.id==channelId
-                                    ?<Link to={`/videos-manager`} style={{ textDecoration: 'none' }}>
-                                        <button className={`subcribe-button mt-3`}>Quản lý video</button>
-                                     </Link>
-                                    :<button className={`subcribe-button  ${!channel.subcribedByMe?"active":""} mt-3`}> {!channel.subcribedByMe?"Subcribed":"Subcribe"}</button>
-                                :
-                                <button onClick={handleSubcribeButton} className={`subcribe-button  ${!channel.subcribedByMe?"active":""} mt-3`}> {!channel.subcribedByMe?"Subcribed":"Subcribe"}</button>
-                            }   
+                            <span className="email-subscribe-video"> {channel.subscribersCount} người đăng ký • {channel.videosCount} video</span>
+                            <div>
+                                {user
+                                    ?user.id==channelId
+                                        ?<Link to={`/videos-manager`} style={{ textDecoration: 'none' }}>
+                                            <button className={`subscribe-button mt-3 me-3`}>Quản lý video</button>
+                                        </Link>
+                                        :<></>
+                                    :<></>
+                                }   
+                                <button onClick={handleSubscribeButton} className={`subscribe-button  ${channel.subscribedByMe?"active":""} mt-3`}> {channel.subscribedByMe?"Subscribed":"Subscribe"}</button>
+                            </div>
                         </div>
                     </div>
                     <div className="featured-section mt-5">

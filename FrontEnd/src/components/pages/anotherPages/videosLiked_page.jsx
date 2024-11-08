@@ -17,49 +17,6 @@ const VideosLiked=()=>{
         const handleFilterActive=()=>{
             setFilterActive(prev=>!prev)
         }
-    const items=[
-        {
-            thumbnail:"https://i.ytimg.com/vi/DtBPnnWHR-Y/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLBwOfSm8rpmWUE3aDeiQiuNhb-WRw",
-            title:"Nicon Corporation",
-            view:2500,
-            time:"22:43"
-        },
-         {
-            thumbnail:"https://img.freepik.com/free-vector/modern-youtube-background-thumbnail-with-papercut-effect_1361-2739.jpg",
-            title:"Canon EOS REBEL",
-            view:6543,
-            time:"59:43"
-        },
-         {
-            thumbnail:"https://img.freepik.com/free-psd/creative-youtube-thumbnail-design-template_505751-6054.jpg",
-            title:"Nicon unilll",
-            view:7789,
-            time:"11:43"
-        },
-         {
-            thumbnail:"https://i.ytimg.com/vi/WzDmoTydaEk/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAdjWUCBXuCPTYOaERM1cVXjs3H8A",
-            title:"Sony , ILCE-7M2",
-            view:2501,
-            time:"01:43"
-        },
-         {
-            thumbnail:"https://img.freepik.com/free-psd/education-template-design_23-2151095367.jpg",
-            title:"Template Duecation",
-            view:5500,
-            time:"05:43"
-        }, {
-            thumbnail:"https://img.freepik.com/free-psd/e-learning-template-design_23-2151081798.jpg",
-            title:"Your learn lets learn",
-            view:25000,
-            time:"11:03"
-        }
-        , {
-            thumbnail:"https://img.freepik.com/premium-psd/youtube-thumbnail-design-cover-design-template_941802-3172.jpg",
-            title:"Nicon Corporation version 1",
-            view:44000,
-            time:"07:56"
-        }
-    ]
 
 
 
@@ -157,12 +114,14 @@ const VideosLiked=()=>{
                                     ))
                                     :<>
                                         <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
-                                        <AiFillLike size={40}  className="mx-3"/>
-                                        <div>
-                                            <h2>You haven't liked any videos yet</h2>
-                                            <h5>Add more</h5>
+                                            <div className="d-flex flex-row">
+                                            <AiFillLike size={40}  className="mx-3"/>
+                                            <div>
+                                                <h2>You haven't liked any videos yet</h2>
+                                                <h5  className="text-center">Add more</h5>
+                                            </div>
+                                            </div>
                                         </div>
-                                    </div>
                                     </>
                                 }
                                 
@@ -171,12 +130,15 @@ const VideosLiked=()=>{
                     </div>
                 :<>
                     <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
-                        <AiFillLike size={40}  className="mx-3"/>
-                        <div>
-                            <h2>Here to see which videos you liekd</h2>
-                            <h5>Login First</h5>
+                        <div className="d-flex flex-row">
+                            <AiFillLike size={40}  className="mx-3"/>
+                        <div className="text-center">
+                                <h2>Here to see which videos you liekd</h2>
+                                <h5  className="text-center">Login First</h5>
+                            </div>
                         </div>
                     </div>
+                    
                 </>
             }
         </>

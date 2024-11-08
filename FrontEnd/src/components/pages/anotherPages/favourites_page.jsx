@@ -112,13 +112,16 @@ const FavouriteVideosPage=()=>{
                                             </div>
                                     ))
                                     :<>
-                                        <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
-                                        <AiFillLike size={40}  className="mx-3"/>
-                                        <div>
-                                            <h2>Your Favourites videos are empty</h2>
-                                            <h5>Add more</h5>
+                                     <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
+                                        <div className="d-flex flex-row">
+                                            <AiFillLike size={40}  className="mx-3"/>
+                                            <div>
+                                                <h2>Your Favourites videos are empty</h2>
+                                                <h5 className="text-center">Add more</h5>
+                                            </div>
                                         </div>
                                     </div>
+                                 
                                     </>
                                 }
                                 
@@ -126,11 +129,13 @@ const FavouriteVideosPage=()=>{
                         </div>
                     </div>
                 :<>
-                    <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
-                        <AiFillLike size={40}  className="mx-3"/>
-                        <div>
-                            <h2>Here to see your favourite videos</h2>
-                            <h5>Login First</h5>
+                     <div className="cant-find-container d-flex flex-row justify-content-center align-items-center">
+                        <div className="d-flex flex-row">
+                            <AiFillLike size={40}  className="mx-3"/>
+                                <div>
+                                    <h2>Here to see your favourite videos</h2>
+                                    <h5 className="text-center">Login First</h5>
+                                </div>
                         </div>
                     </div>
                 </>

@@ -60,7 +60,7 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
 
 };
 
-module.exports.SubcribeMSG = async (channel, service) => {
+module.exports.SubscribeMSG = async (channel, service) => {
     const q = await channel.assertQueue("", {
         exclusive: true
     });
@@ -69,7 +69,7 @@ module.exports.SubcribeMSG = async (channel, service) => {
         if (msg.content) {
             if (msg.properties.replyTo) {
                 console.log("the msg is :", msg.content.toString())
-                const response = await service.SubcribeEvent(msg.content.toString())
+                const response = await service.SubscribeEvent(msg.content.toString())
                 console.log("I will send back:", response);
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,

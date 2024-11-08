@@ -66,9 +66,6 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
         channel.consume(
             REPLY_QUEUE,
             (msg) => {
-                console.log("first:",correlationId)
-                console.log("first2:",msg.properties.correlationId)
-
                 if (msg.properties.correlationId === correlationId) {
                     resolve(msg.content.toString());
                     channel.cancel(consumerTag);
@@ -96,7 +93,7 @@ module.exports.PushlishMSGWithReply = (channel, msg, service) => {
 
 };
 
-module.exports.SubcribeMSG = async (channel, service) => {
+module.exports.SubscribeMSG = async (channel, service) => {
     const q = await channel.assertQueue("", {
         exclusive: true,
         durable:false
@@ -105,7 +102,7 @@ module.exports.SubcribeMSG = async (channel, service) => {
     channel.consume(q.queue, async(msg) => {
         if (msg.content) {
             if (msg.properties.replyTo) {
-                var response = await service.SubcribeEvent(msg.content.toString());
+                var response = await service.SubscribeEvent(msg.content.toString());
                 response = JSON.stringify(response)
                 channel.sendToQueue(msg.properties.replyTo, Buffer.from(response), {
                     correlationId: msg.properties.correlationId,
@@ -113,7 +110,7 @@ module.exports.SubcribeMSG = async (channel, service) => {
 
                 return;
             }
-            service.SubcribeEvent(msg.content.toString())
+            service.SubscribeEvent(msg.content.toString())
         }
     }, {
         noAck: true

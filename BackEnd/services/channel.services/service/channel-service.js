@@ -1,17 +1,29 @@
 const express=require("express")
-const {channelRepository} = require("../database")
-const {generateJWTToken,verifyJWTToken,formatData,PushlishMSG} =require("../untils")
+const {channelRepository,notificationRepository} = require("../database")
+const {generateJWTToken,verifyJWTToken,formatData,PushlishMSG,destroyJWTToken} =require("../untils")
 const mongoose = require('mongoose');
 const CustomError = require("../untils/customError");
+const { create } = require("../database/models/notification.model");
 const { ObjectId } = mongoose.Types;
 class channelService{
     constructor(){
-        this.repository=new channelRepository()
+        this.channelRepo=new channelRepository();
+        this.notificationRepo=new notificationRepository();
     }
+    // -------------------FILTER--------------------///
+    async getFilterChannels(key, pagination, number){
+        try {
+            const channels=await this.channelRepo.findChannelsWithPagination({title:{"$regex":key}},{subscribersCount:"desc"},pagination,number)
+            return channels;
+        } catch (error) {
+            throw error;
+        }
+    }
+    // -------------------FILTER--------------------///
     async getOneChannel(id){
         try {
             if(mongoose.isValidObjectId(id)){
-                const channel=await this.repository.findOneChannelById(id);
+                const channel=await this.channelRepo.findOneChannelById(id);
                 return channel;
             }
             else
@@ -22,12 +34,12 @@ class channelService{
     }
     async getChannelInfoPage(channleId, userId){
         try {
-            const userChannel=await this.repository.findOneChannelById(userId);
-            var channel=await this.repository.findOneChannelById(channleId);
+            const userChannel=await this.channelRepo.findOneChannelById(userId);
+            var channel=await this.channelRepo.findOneChannelById(channleId);
             if (!channel){
                 throw new CustomError("channel was not found",401)
             }
-            channel={...channel.toObject(),subcribedByMe:userChannel?userChannel.channelSubcribed.includes(channel._id.toString()):false}
+            channel={...channel.toObject(),subscribedByMe:userChannel?userChannel.channelSubscribed.includes(channel._id.toString()):false}
             return channel;
 
             
@@ -36,33 +48,34 @@ class channelService{
         }
         
     }
-    //subcribe
+    //subscribe
 
-    async subcribeChannel(channelId, channelSucribedId) {
+    async subscribeChannel(channelId, channelSubscribedId) {
         try {
-            const channel=await this.repository.findOneChannelById(channelId)
-            if(channel.channelSubcribed.includes(channelSucribedId))
+            const channel=await this.channelRepo.findOneChannelById(channelId)
+            if(channel.channelSubscribed.includes(channelSubscribedId))
             {
-                 await this.repository.updateOneChannel({
+                 await this.channelRepo.updateOneChannel({
                      _id: channelId
-                 }, {$pull: {channelSubcribed: channelSucribedId}
+                 }, {$pull: {channelSubscribed: channelSubscribedId}
                  })
-                 await this.repository.updateOneChannel({
-                     _id: channelSucribedId
-                 }, { $inc: {subcribersCount: -1}
+                 await this.channelRepo.updateOneChannel({
+                     _id: channelSubscribedId
+                 }, { $inc: {subscribersCount: -1}
                  })
                  return {addFlag:false,id:channelId}
             }
-             await this.repository.updateOneChannel({
-                _id: channelId}, {$push: {channelSubcribed: channelSucribedId}
+             await this.channelRepo.updateOneChannel({
+                _id: channelId}, {$push: {channelSubscribed: channelSubscribedId}
             })
-            await this.repository.updateOneChannel({
-                     _id: channelSucribedId
-                 }, { $inc: {subcribersCount: 1}
+            await this.channelRepo.updateOneChannel({
+                     _id: channelSubscribedId
+                 }, { $inc: {subscribersCount: 1}
                  })
              return {addFlag:true,id:channelId}
            
         } catch (error) {
+            console.log(error)
             throw error;
         }
     }
@@ -71,9 +84,9 @@ class channelService{
     async addCommentsLiked(channelId, commentId){
         try {
              {
-            const channel =await this.repository.findOneChannelById(channelId)
+            const channel =await this.channelRepo.findOneChannelById(channelId)
             if(channel.commentsLiked.includes(commentId)){
-                await this.repository.updateOneChannel({
+                await this.channelRepo.updateOneChannel({
                     _id: channelId
                 }, {
                     $pull: {
@@ -83,7 +96,7 @@ class channelService{
                 return {addFlag:false}
             }
             }
-             await this.repository.updateOneChannel({
+             await this.channelRepo.updateOneChannel({
                  _id: channelId
              }, {
                  $push: {
@@ -103,7 +116,7 @@ class channelService{
             if (token) {
                 const data=await verifyJWTToken(token)
                 if(data){
-                    const channel=await this.repository.findOneChannelById(data.id);
+                    const channel=await this.channelRepo.findOneChannelById(data.id);
                     const response={
                         id:channel.id,
                         email:channel.email,
@@ -111,7 +124,7 @@ class channelService{
                         title:channel.title,
                         likesVideo: channel.likesVideo,
                         favouriteVideos: channel.favouriteVideos,
-                        channelSubcribed: channel.channelSubcribed
+                        channelSubscribed: channel.channelSubscribed
 
                     };
 
@@ -131,7 +144,7 @@ class channelService{
       async getInfoChannel(id) {
           try {
         
-            const channel = await this.repository.findOneChannelById(id);
+            const channel = await this.channelRepo.findOneChannelById(id);
             return formatData(channel);
           } catch (error) {
 
@@ -149,31 +162,60 @@ class channelService{
             
         }
     }
-    /// login event
+    /// --------------------------lOG IN-LOG OUT START----------------------------------/////
     async login(name,email,id,thumbnail){
         try {
-            var channel=await this.repository.findOneChannelByGoogleId(id);
+            var channel=await this.channelRepo.findOneChannelByGoogleId(id);
 
             if(channel){
                 const token=generateJWTToken(channel.email,channel._id)
                 return token;
             }
 
-            channel = await this.repository.createChannel(email,name,id,thumbnail);
-             const token = generateJWTToken(channel.email, channel._id)
-             return formatData(token);
+            channel = await this.channelRepo.createChannel(email,name,id,thumbnail);
+            await this.notificationRepo.create(channel._id);
+            const token = generateJWTToken(channel.email, channel._id)
+            return formatData(token);
         } catch (error) {
             throw error
         }
     }
+    // async logOut(token){
+    //     try {
+    //         destroyJWTToken(token);
+    //         return true;
+    //     } catch (error) {
+    //         throw error;
+    //     }
+    // }
+    /// --------------------------lOG IN-LOG OUT END----------------------------------/////
 
 
-    async getChannels(){
-        return this.repository.getChannels()
+    async getChannelSubscriptions(channelId){
+       try {
+            const channel = await this.channelRepo.findOneChannelById(channelId)
+            const subscriptions=[]
+            if(channel)
+                await Promise.all(
+                    channel.channelSubscribed.map(async (id) => {
+                        const channelTemp=await this.channelRepo.findOneChannelById(id)
+                        subscriptions.push({
+                            _id:channelTemp._id,
+                            title:channelTemp.title,
+                            videosCount:channelTemp.videosCount,
+                            subscribersCount:channelTemp.subscribersCount,
+                            thumbnail:channelTemp.profilePicture
+                        })
+                    })
+                )
+            return subscriptions;
+       } catch (error) {
+            throw error;
+       }
     }
   
     async increaseViews(id) {
-       const result=await this.repository.increaseView(id)
+       const result=await this.channelRepo.increaseView(id)
        return(formatData(result))
     }
 
@@ -181,8 +223,8 @@ class channelService{
     //history
     async addHistory(channelId,videoId){
         try {
-            await this.repository.updateOneChannel({_id:channelId},{$pull:{history:{videoId:new ObjectId(videoId)}}})
-            const result=await this.repository.updateOneChannel({_id:channelId},{$push:{history:{videoId:new ObjectId(videoId)}}})
+            await this.channelRepo.updateOneChannel({_id:channelId},{$pull:{history:{videoId:new ObjectId(videoId)}}})
+            const result=await this.channelRepo.updateOneChannel({_id:channelId},{$push:{history:{videoId:new ObjectId(videoId)}}})
             return formatData(result);
         } catch (error) {
             throw error
@@ -190,7 +232,7 @@ class channelService{
     }
     async removeHistory(channelId, videoId) {
         try {
-            const result = await this.repository.updateOneChannel({
+            const result = await this.channelRepo.updateOneChannel({
                 _id: channelId
             }, {
                 $pull: {
@@ -209,9 +251,9 @@ class channelService{
     //videoliked
     async addVideosLiked(channelId, videoId) {
         try {
-            const channel = await this.repository.findOneChannelById(channelId)
+            const channel = await this.channelRepo.findOneChannelById(channelId)
             if (channel.likesVideo.includes(videoId)){
-                await this.repository.updateOneChannel({
+                await this.channelRepo.updateOneChannel({
                     _id: channelId
                 }, {
                     $pull: {
@@ -220,7 +262,7 @@ class channelService{
                 })
                 return {addFLag:false}
             }
-            await this.repository.updateOneChannel({
+            await this.channelRepo.updateOneChannel({
                 _id: channelId
             }, {
                 $push: {
@@ -237,7 +279,7 @@ class channelService{
     }
     async removeVideosLiked(channelId, videoId) {
           try {
-              const result = await this.repository.updateOneChannel({
+              const result = await this.channelRepo.updateOneChannel({
                   _id: channelId
               }, {
                   $pull: {
@@ -253,9 +295,9 @@ class channelService{
     //favourite video
     async addFavouriteVideos(channelId, videoId) {
         try {
-            const channel = await this.repository.findOneChannelById(channelId)
+            const channel = await this.channelRepo.findOneChannelById(channelId)
             if (channel.favouriteVideos.includes(videoId)) {
-                await this.repository.updateOneChannel({
+                await this.channelRepo.updateOneChannel({
                     _id: channelId
                 }, {
                     $pull: {
@@ -266,7 +308,7 @@ class channelService{
                     addFlag: false
                 }
             }
-            await this.repository.updateOneChannel({
+            await this.channelRepo.updateOneChannel({
                 _id: channelId
             }, {
                 $push: {
@@ -283,7 +325,7 @@ class channelService{
     }
     async removeFavouriteVideos(channelId, videoId) {
         try {
-            const result = await this.repository.updateOneChannel({
+            const result = await this.channelRepo.updateOneChannel({
                 _id: channelId
             }, {
                 $pull: {
@@ -297,29 +339,15 @@ class channelService{
     }
     //favourite video
 
-    async getChannelSubcribed(channelId) {
+    async getChannelSubscribed(channelId) {
         try {
-            const fields = "title profilePicture videosCount subcribersCount description _id"
-            const channel = await this.repository.findOneChannelById(channelId);
-            const channels=await this.repository.findChannelsWithFields({_id:{$in:channel.channelSubcribed}},fields);
+            const fields = "title profilePicture videosCount subscribersCount description _id"
+            const channel = await this.channelRepo.findOneChannelById(channelId);
+            const channels=await this.channelRepo.findChannelsWithFields({_id:{$in:channel.channelSubscribed}},fields);
             return formatData(channels);
         } catch (error) {
             throw error
         }
-    }
-
-    async changeSubcribeCount(google_id,flag) {
-            const result = await this.repository.changeSubcribeCount(google_id, flag);
-            return formatData(result);
-        
-    }
-    async ChangeNotification(google_id, flag) {
-        const result = await this.repository.ChangeNotification(google_id, flag);
-        return formatData(result);
-    }
-    async update(google_id, descriptions, status, title) {
-        const result = await this.repository.updateChannel(google_id, descriptions, status, title)
-        return formatData(result);
     }
 
     // get channel titles
@@ -328,7 +356,7 @@ class channelService{
         let channelTitles=[]
         await Promise.all(
             channelIds.map(async (id) => {
-                const channel = await this.repository.findOneChannelById(id);
+                const channel = await this.channelRepo.findOneChannelById(id);
                 if (channel) {
                     channelTitles.push({title:channel.title,id:channel._id});
                 }
@@ -343,34 +371,34 @@ class channelService{
     }
     async adjustVideoCount(channelId, amount){
         try {
-            const channel=await this.repository.updateChannel({_id:channelId},{$inc:{videosCount:amount}});
+            const channel=await this.channelRepo.updateChannel({_id:channelId},{$inc:{videosCount:amount}});
             return channel;
         } catch (error) {
             console.log(error)
             return null;
         }
     }
-    async adjustSubcribers(channelId ,subcriberChannelId,flag){
+    async adjustSubscribers(channelId ,subscriberChannelId,flag){
         try {
             if(flag){
-            //if true add to subcribers
-                channel = await this.repository.updateChannel({_id:channelId}, {
+            //if true add to subscribers
+                channel = await this.channelRepo.updateChannel({_id:channelId}, {
                     $push: {
-                        subcribers: subcriberChannelId
+                        subscribers: subscriberChannelId
                     },
                     $inc: {
-                        subcribersCount:1
+                        subscribersCount:1
                     }
                 })
                 return channel;
             }
-            // if false remove from subcribers
-            channel = await this.repository.updateChannel({_id:channelId}, {
+            // if false remove from subscribers
+            channel = await this.channelRepo.updateChannel({_id:channelId}, {
                 $pull: {
-                    subcribers: subcriberChannelId
+                    subscribers: subscriberChannelId
                 },
                 $inc: {
-                    subcribersCount: -1
+                    subscribersCount: -1
                 }
             })
             return channel;
@@ -384,13 +412,13 @@ class channelService{
         try {
             let commentsLiked;
             if(channelId){
-                const channel = await this.repository.findOneChannelById(channelId);
+                const channel = await this.channelRepo.findOneChannelById(channelId);
                 commentsLiked=channel.commentsLiked;
             }
             let channelsInfo = []
             await Promise.all(
                 channelIds.map(async (id) => {
-                    const channel = await this.repository.findOneChannelById(id);
+                    const channel = await this.channelRepo.findOneChannelById(id);
                     if (channel) {
                         channelsInfo.push({
                             title: channel.title,
@@ -423,7 +451,7 @@ class channelService{
                         commentsLiked:commentId
                     }
             }
-            const result = await this.repository.updateManyChannel(find,updateInfo);
+            const result = await this.channelRepo.updateManyChannel(find,updateInfo);
         } catch (error) {
             console.log(error)
             return null;
@@ -431,8 +459,8 @@ class channelService{
     }
     async getChannelInfo(channelId){
         try {
-            const fields = "title profilePicture subcribersCount _id"
-            const channel = await this.repository.findChannelsWithFields({
+            const fields = "title profilePicture subscribersCount _id"
+            const channel = await this.channelRepo.findChannelsWithFields({
                 _id:channelId
             }, fields);
             return formatData(channel);
@@ -440,10 +468,10 @@ class channelService{
             throw error
         }
     }
-    async getLikeFavouriteSubcribe(id){
+    async getLikeFavouriteSubscribe(id){
         try {
-            const fields = "likesVideo channelSubcribed favouriteVideos"
-            const channel = await this.repository.findChannelsWithFields({
+            const fields = "likesVideo channelSubscribed favouriteVideos"
+            const channel = await this.channelRepo.findChannelsWithFields({
                 _id: id
             }, fields);
             return formatData(channel);
@@ -451,21 +479,102 @@ class channelService{
             throw error
         }
     }
+///--------------------------Notification ------------------------------//
+    async notifyNewVideo(videoId,channelId,videoTitle){
+        try {
+            const subscribers=await this.channelRepo.findChannels({channelSubscribed:channelId},{})
+            if(subscribers.length>0){
+                
+                await Promise.all(
+                    subscribers.map(async(channel) => {
+                        const notiContent = {
+                            videoId: videoId,
+                            channelId: channel._id,
+                            channelInteractionId:channelId,
+                            messageType: "NEW_VIDEO",
+                            content: `đã tải lên video mới : ${videoTitle}`
 
-    async SubcribeEvent(payload){
+                        }
+                        await this.notificationRepo.create(notiContent);
+                    })
+                )
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+    async notifyInteraction(videoId, channelId,channelInteractionId,type) {
+        try {
+            if(channelId!=channelInteractionId){
+                var content="";
+                if(type=="LIKE_COMMENT")
+                    content="đã thích bình luận của bạn"
+                else 
+                    content = "đã trả lời bình luận của bạn"
+                const notiContent = {
+                    videoId: videoId,
+                    channelId:channelId,
+                    channelInteractionId: channelInteractionId,
+                    messageType: type,
+                    content: content
+                }
+                const isExist=await this.notificationRepo.findOne({channelId:channelId, messageType: type,videoId:videoId })
+
+                if(isExist){
+                    await this.notificationRepo.update({channelId:channelId, messageType: type,videoId:videoId },{createdAt:new Date(),channelInteractionId:channelInteractionId})
+                    return ;
+                }
+                await this.notificationRepo.create(notiContent);
+                return;
+            }
+        } catch (error) {
+            throw error;
+        }
+    }
+    async getNotifcations(channelId){
+        try {
+            const fields = "channelInteractionId content createdAt videoId"
+            const notifcations=await this.notificationRepo.get({channelId:channelId},{createdAt:"desc"},fields,15);
+            const formatNotifications=[];
+            await Promise.all(
+                notifcations.map(async(noti)=>{
+                    const channelTemp = await this.channelRepo.findOneChannelById(noti.channelInteractionId);
+                    formatNotifications.push({
+                        ...noti.toObject(),
+                        channelInteractionThumbnail:channelTemp.profilePicture,
+                        channelInteractionTitle:channelTemp.title
+                        
+                    })
+                })
+
+            )
+            return formatNotifications;
+        } catch (error) {
+            throw error;
+        }
+
+    }
+
+
+    async SubscribeEvent(payload){
         payload=JSON.parse(payload)
         const {event,data}=payload;
         const {
-            google_id,
-            video_id,
             channelIds,
             amount,
             channelId,
-            subcriberChannelId,
+            channelInteractionId,
+            subscriberChannelId,
             commentId,
-            flag
+            flag,
+            videoId,
+            videoTitle,
+            type
         } = data;
         switch(event){
+            case "NEW_VIDEO_NOTIFICATION":
+                return await this.notifyNewVideo(videoId,channelId,videoTitle);
+                break;
             case "GET_CHANNEL_INFO":
                 return await this.getChannelInfo(channelId);
                 break;
@@ -476,7 +585,7 @@ class channelService{
                 return await this.getCommentsInfoAndChannelCommenstLike(channelId,channelIds);
                 break;
             case"ADJUST_SUBCRIBERS":
-                return await this.adjustSubcribers(channelId,subcriberChannelId,flag);
+                return await this.adjustSubscribers(channelId,subscriberChannelId,flag);
                 break;
             case "GET_CHANNELS_TITLE":
                 return await this.getChannelsTitle(channelIds);
@@ -484,14 +593,11 @@ class channelService{
             case"ADJUST_VIDEO_COUNT":
                 return await this.adjustVideoCount(channelId,amount);
                 break;
-            case"ADD_HISTORY":
-                return await this.addHistory(google_id, video_id);
+            case"NEW_VIDEO_NOTIFICATION":
+                return await this.notifyNewVideo(videoId,channelId,videoTitle);
                 break;
-            case"CHANGE_SUBCRIBECOUNT":
-                return await this.changeSubcribeCount(google_id, flag);
-                break;
-            case"CHANGE_NOTIFICATION":
-                return await this.ChangeNotification(google_id, flag);
+            case "INTERACTED_NOTIFICATION":
+                return await this.notifyInteraction(videoId, channelId,channelInteractionId, type);
                 break;
             
         
@@ -501,4 +607,6 @@ class channelService{
     }
     
 }
+
+
 module.exports=channelService;

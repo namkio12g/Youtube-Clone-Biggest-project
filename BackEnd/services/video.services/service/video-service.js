@@ -25,8 +25,18 @@ class channelService{
             throw error;
         }
     }
-    //------------------VIEWS ------------------------------//
-
+    //------------------FILTER ------------------------------//
+    async getFilterVideos(key,pagination,number){
+        try {
+             const fields = "title _id views thumbnail createdAt channelId descriptions duration";
+             const videos = await this.videoRepo.findVideosWithFields({title:{'$regex':`${key}`}}, {
+                 views: "desc", createdAt: "desc"
+             }, pagination, fields, number );
+             return formatData(videos)
+        } catch (error) {
+            throw error;
+        }
+    }
     //-------------------CHANNEL PAGE------------------------------//
 
     async getChannelHomeVideos(channelId){
@@ -157,8 +167,8 @@ class channelService{
         if(categoryId)
             find.categoryId=categoryId;
         const fields = "title _id views thumbnail createdAt channelId categoryId duration";
-            const videos = await this.videoRepo.findVideosWithFields(find,{views:"desc",createdAt:"desc"},pagination,fields,number);
-            return formatData(videos)
+        const videos = await this.videoRepo.findVideosWithFields(find,{views:"desc",createdAt:"desc"},pagination,fields,number);
+        return formatData(videos)
         } catch (error) {
             throw error;
         }
@@ -251,7 +261,7 @@ class channelService{
             throw error;
         }
     }
-  async SubcribeEvent(payload) {
+  async SubscribeEvent(payload) {
       payload = JSON.parse(payload)
       const {
           event,
@@ -289,7 +299,7 @@ class channelService{
             await this.addHistory(google_id, video_id);
             break;
         case "CHANGE_SUBCRIBECOUNT":
-            await this.changeSubcribeCount(google_id, flag);
+            await this.changeSubscribeCount(google_id, flag);
             break;
         case "CHANGE_NOTIFICATION":
             await this.ChangeNotification(google_id, flag);

@@ -1,12 +1,12 @@
 const express= require("express")
 const channelService=require("../service/channel-service.js")
-const {SubcribeMSG, PushlishMSGWithReply, PushlishMSGNoReply}=require("../untils")
+const {SubscribeMSG, PushlishMSGWithReply, PushlishMSGNoReply}=require("../untils")
 const CustomError = require("../untils/customError")
 const {authJWT}=require("./middleware/auth.js")
 
 module.exports=(app,passport,channel)=>{
     const service = new channelService();
-    SubcribeMSG(channel,service);
+    SubscribeMSG(channel,service);
     function isLoggedIn(req, res, next) {
         req.user ? next() : res.sendStatus(401)
     }
@@ -20,7 +20,35 @@ module.exports=(app,passport,channel)=>{
             next(error);
         }
     })
+    // -------------------FILTER--------------------///
+    app.get("/filter", async (req, res, next) => {
+        try {
+            const pagination = req.query.pagination;
+
+            const number = req.query.number;
+            const key = req.query.key;
+            var channels = await service.getFilterChannels(key, pagination, number);
+            res.json(
+                channels
+            )
+        } catch (error) {
+            next(error)
+        }
+    })
+    // -------------------NOTIFICATIONS--------------------///
+
+
+    app.get("/notifcation/:id",async(req,res,next)=>{
+        try {
+            const channelId=req.params.id;
+            const notifcations=await service.getNotifcations(channelId);
+            res.json(notifcations);
+        } catch (error) {
+            next(error)
+        }
+    });
     // -------------------hisory--------------------///
+    
     app.delete("/remove-history",async (req,res,next)=>{
         try {
             const channelId = req.body.id;
@@ -206,38 +234,38 @@ module.exports=(app,passport,channel)=>{
             next(error)
         }
     })
-    // ------------------channels subcribed--------------------///
+    // ------------------channels subscribed--------------------///
 
-    app.get("/channels-subcribed/:id", async (req, res, next) => {
+    app.get("/channels-subscribed/:id", async (req, res, next) => {
         try {
             const channelId = req.params.id;
-            const channels=await service.getChannelSubcribed(channelId);
+            const channels=await service.getChannelSubscribed(channelId);
             res.json(channels)
         } catch (error) {
             next(error)
         }
 
     })
-    app.post("/subcribe-channel", async (req, res, next) => {
+    app.post("/subscribe-channel", async (req, res, next) => {
         try {
             const channelId = req.body.channelId;
             const channelSucribedId = req.body.channelSucribedId;
-            const response = await service.subcribeChannel(channelId, channelSucribedId)
+            const response = await service.subscribeChannel(channelId, channelSucribedId)
             res.json(response);
         } catch (error) {
             next(error)
         }
     })
-    app.get("/get-like-favourite-subcribe/:id",async (req, res, next) => {
+    app.get("/get-like-favourite-subscribe/:id",async (req, res, next) => {
         try {
             const id=req.params.id;
-            const response=await service.getLikeFavouriteSubcribe(id)
+            const response=await service.getLikeFavouriteSubscribe(id)
             res.json(response)
         } catch (error) {
             next(error)
         }
     })
-    // authentication with google
+    // -----------------------------authentication with google-----------------------------///
     app.get("/auth/google",
         passport.authenticate('google', {
             scope: ['profile', 'email']
@@ -265,11 +293,17 @@ module.exports=(app,passport,channel)=>{
               message: "hello failure"
           });
     });
-    app.get("/hello", (req, res) => {
-        res.json({
-            message: "hello failure"
-        });
+    app.post("/log-out",authJWT,(req, res) => {
+        try {
+            
+            const token = req.cookies.token;
+            res.clearCookie("token");
+            res.json("Log out perfect!")
+        } catch (error) {
+            next(error)
+        }
     });
+       // -----------------------------authentication with google-----------------------------///
     // fetch user
     app.get("/fetchChannel",async(req,res)=>{
         const token = req.cookies.token;
@@ -300,17 +334,28 @@ module.exports=(app,passport,channel)=>{
         const data=await service.createChannel({email,password});
         res.json(data)
     })
-    app.get("/getChannels",async(req,res,next)=>{
-        const data=await service.getChannels();
-        return res.json(data)
+    app.get("/subscriptions/:id", async (req, res, next) => {
+        try {
+            const channelId=req.params.id;
+            const data = await service.getChannelSubscriptions(channelId)
+            return res.json(data)
+            
+        } catch (error) {
+            next(error)
+        }
     })
     //get channel
     app.get("/getChannelWithReply/:id",async(req,res,next)=>{
-        const id=req.params.id;
-        console.log(id)
-        const data=await service.getChannel(id);
-        const data1=await PushlishMSGWithReply(channel,JSON.stringify({mymsg:"my msg"}),"video")
-        res.json(data1)
+        try {
+            
+            const id=req.params.id;
+            console.log(id)
+            const data=await service.getChannel(id);
+            const data1=await PushlishMSGWithReply(channel,JSON.stringify({mymsg:"my msg"}),"video")
+            res.json(data1)
+        } catch (error) {
+            next(error)
+        }
     })
         //get channel
     app.get("/getChannelNoReply/:id", async (req, res, next) => {
@@ -327,15 +372,20 @@ module.exports=(app,passport,channel)=>{
         try {
             const commentId = req.body.commentId;
             const channelId = req.body.channelId;
+            const videoId=req.body.videoId;
+            const commentChannelId = req.body.commentChannelId;
             const response = await service.addCommentsLiked(channelId, commentId);
             var amount=-1
-            if(response.addFlag)
+            if(response.addFlag){
                 amount=1
+                service.notifyInteraction(videoId,commentChannelId,channelId,"LIKE_COMMENT")
+            }
             const payload = {
                 event: "ADJUST_LIKES",
                 data: {
                     amount: amount,
-                    commentId: commentId
+                    commentId: commentId,
+                    channelInteractionId:channelId
                 }
             }
             PushlishMSGNoReply(channel, payload, "interaction");

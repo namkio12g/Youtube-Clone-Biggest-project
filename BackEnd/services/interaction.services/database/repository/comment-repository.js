@@ -7,6 +7,10 @@ class commentRepository {
         const comments= await commentModel.find(find).sort(sort);
         return comments;
     }
+    async findOne(find) {
+        const comment = await commentModel.findOne(find)
+        return comment;
+    }
     async updateComment(find, updateInfo) {
         const comment = await commentModel.findOneAndUpdate(find,updateInfo);
         return comment;

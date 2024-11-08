@@ -10,6 +10,7 @@ const { Session } = require("inspector/promises");
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const {createRabbitConnection}=require("./untils")
 const bodyParser = require('body-parser');
+const redirect = 
 passport.use(new GoogleStrategy({
         clientID: GOOGLE_CLIENT_ID,
         clientSecret: GOOGLE_CLIENT_SECRET,
@@ -17,7 +18,6 @@ passport.use(new GoogleStrategy({
         passReqToCallback:true
     },
     function(request,accessToken,refreshToken,profile,done){
-        redirect("/")
         return done(null,profile)
     }
  

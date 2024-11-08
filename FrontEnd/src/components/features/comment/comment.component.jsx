@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 
 import { FaHeart,FaRegHeart,FaReply } from "react-icons/fa";
 import { AiFillEdit } from "react-icons/ai";
@@ -32,10 +33,14 @@ const Comment =({comment,areReplied})=>{
     return (
     <>
     <div className="comment-item d-flex flex-row mb-3">
-            <img  src={comment.channelThumbnail} alt="" className="channel-thumbnail me-3"/>
+            <Link to={`/channel/${comment.channelId}`} style={{ textDecoration: 'none' }}>
+                <img  src={comment.channelThumbnail} alt="" className="channel-thumbnail me-3"/>
+            </Link>
             <div className="comment-content">
                 <div>
-                    <span className="channel-title"> {comment.channelTitle}</span>
+                    <Link to={`/channel/${comment.channelId}`} style={{ textDecoration: 'none' }}>
+                        <span className="channel-title"> {comment.channelTitle}</span>
+                    </Link>
                     <span className="ms-2 time-text">{comment.timeDifferenceText}</span>
 
                 </div>
@@ -47,8 +52,8 @@ const Comment =({comment,areReplied})=>{
                 </div>
                 <div className='m-0 button-section d-flex flex-row align-items-center mb-1'>
                     {comment.likedByMe
-                        ? <FaHeart className="me-1" size={17} onClick={()=>toggleLikeComment(comment._id)}/> 
-                        :<FaRegHeart className="me-1" size={17} onClick={()=>toggleLikeComment(comment._id)}/>
+                        ? <FaHeart className="me-1" size={17} onClick={()=>toggleLikeComment(comment._id,comment.channelId,comment.videoId)}/> 
+                        :<FaRegHeart className="me-1" size={17} onClick={()=>toggleLikeComment(comment._id,comment.channelId,comment.videoId)}/>
                     }
                     <span className="">{comment.likesCount}</span>
                     {!areReplied? <FaReply size={17} onClick={()=>setFormActive(prev=>!prev)}/>:<></>}

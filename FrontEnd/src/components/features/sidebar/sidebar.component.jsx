@@ -10,13 +10,22 @@ import { BiSolidCategory } from "react-icons/bi";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { UserContext } from "../../context/user.context";
 import './sidebar.scss'
+import axios from "axios";
+
 const Sidebar = ({sidebar})=>{
     const {user } = useContext(UserContext);
 
     const navigate = useNavigate()
     const gotToNewPage=(url)=>{
-    navigate(url);
-  }
+        navigate(url);
+    }
+    const handleLogOut=()=>{
+        if(user){
+            axios.post("/api/channel/log-out")
+            .then(res=>{window.location.reload()})
+            .catch(err=>console.log(error))
+        }
+    }
 
     return(
         <div className={sidebar ? "sidebar active": "sidebar"}>
@@ -45,7 +54,7 @@ const Sidebar = ({sidebar})=>{
                             <FaRegHeart size={20}/><span> Favourites </span>
                         </li>
                         <hr />
-                        <li>
+                        <li onClick={handleLogOut}>
                             <RiLogoutBoxLine size={20}/><span> Log out </span>
                         </li>
                     </>

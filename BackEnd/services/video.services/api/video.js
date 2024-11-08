@@ -7,7 +7,7 @@ const CustomError = require("../untils/customError")
 const FormData = require('form-data');
 const videoModel=require('../database/models/video.model.js')
 const {authJWT}=require("./middleware/auth.js")
-const {SubcribeMSG,PushlishMSGNoReply, PushlishMSGWithReply}=require("../untils");
+const {SubscribeMSG,PushlishMSGNoReply, PushlishMSGWithReply}=require("../untils");
 const EventEmitter = require('events');
 
 const storage = multer.diskStorage({
@@ -31,7 +31,7 @@ let timeOutForVideo;
 const updateEmitter = new EventEmitter();
 module.exports=(app,channel)=>{
     const service = new videoService();
-    SubcribeMSG(channel, service);
+    SubscribeMSG(channel, service);
      app.get("/hello", (req, res) => {
          res.json({
              message: "hello failure1"
@@ -41,7 +41,41 @@ module.exports=(app,channel)=>{
         throw new CustomError("some thing went wrong 1",404)
     });
 
+    //-------------------------------FILTER----------------------------//
+    app.get("/filter",async(req,res,next)=>{
+        try {
+            const pagination = req.query.pagination;
 
+            const number = req.query.number;
+            const key = req.query.key;
+            const videos=await service.getFilterVideos(key,pagination,number);
+            const channelIds = [...new Set(videos.map(video => video.channelId.toString()))];
+            const payload = {
+                event: "GET_CHANNELS_TITLE",
+                data: {
+                    channelIds: channelIds
+                }
+            }
+            const channelsResponse = await PushlishMSGWithReply(channel, payload, "channel");
+            const channels = JSON.parse(channelsResponse);
+            const channelMap = channels.reduce((acc, channel) => {
+                acc[channel.id] = channel.title;
+                return acc;
+            }, {});
+            const videosWithChannel = videos.map(video => {
+                const videoObj = video.toObject();
+                return {
+                    ...videoObj,
+                    channelTitle: channelMap[video.channelId],
+                };
+            });
+            res.json(
+                videosWithChannel
+            )
+        } catch (error) {
+            next(error)   
+        }
+    })
     //-------------------CHANNEL PAGE------------------------------//
     
     app.get("/channel-home-videos/:channelId",async (req,res,next)=>{
@@ -206,7 +240,7 @@ app.post("/increase-views/:id",async (req,res,next)=>{
                 videosWithChannel
             })
     } catch (error) {
-        console.log(error)
+       next(error)
     }
     })
 
@@ -276,10 +310,18 @@ app.post("/increase-views/:id",async (req,res,next)=>{
             },
         }).then(async (response) =>{
                 await fs.unlinkSync(req.file.path)
+                console.log(data)
+                const message = {
+                    event: "NEW_VIDEO_NOTIFICATION",
+                    data: {
+                        videoId: data._id,
+                        channelId: channelId,
+                        videoTitle:data.title
+                    }
+                }
+                PushlishMSGNoReply(channel, message, "channel")
                 clearTimeout(timeOutForVideo)
                 triggerUpdateVideos(channelId);
-                
-                console.log('Success: wwin', );
         }).catch(async (error) => {
                 await fs.unlinkSync(req.file.path)
                 console.error('Error:',error);

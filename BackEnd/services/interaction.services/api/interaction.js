@@ -2,11 +2,11 @@ const express= require("express")
 const interactionService=require("../service/interaction-service.js")
 const CustomError = require("../untils/customError")
 const {authJWT}=require("./middleware/auth.js")
-const {SubcribeMSG,PushlishMSGNoReply, PushlishMSGWithReply}=require("../untils");
+const {SubscribeMSG,PushlishMSGNoReply, PushlishMSGWithReply}=require("../untils");
 module.exports = (app, channel) => {
 
     const service=new interactionService()
-    SubcribeMSG(channel, service);
+    SubscribeMSG(channel, service);
 
     app.get("/hello", (req, res) => {
         res.json({
@@ -48,6 +48,21 @@ module.exports = (app, channel) => {
                 channelTitle: channelsInfo[0].title,
                 channelThumbnail: channelsInfo[0].thumbnail,
             }
+
+            if (parentId) {
+                const commentReplied = await service.findOne(parentId);
+                console.log(commentReplied)
+                const message = {
+                    event: "INTERACTED_NOTIFICATION",
+                    data: {
+                        videoId: videoId,
+                        channelInteractionId: channelId,
+                        channelId: commentReplied.channelId,
+                        type: "REPLY_COMMENT"
+                    }
+                }
+                PushlishMSGNoReply(channel, message, "channel")
+            }
             res.json(newcomment)
 
         } catch (error) {
@@ -68,7 +83,8 @@ module.exports = (app, channel) => {
     app.post("/delete-comment", async (req, res, next) => {
         try {
             const channelId = req.body.channelId;
-            const commentId = req.body.commentId
+            const commentId = req.body.commentId;
+            const comment=await service.findOne(commentId)
             const result = await service.deleteComment(commentId);
             if (result.deletedCount==0){
                 next(new CustomError("Cant find comment Id",404))
@@ -77,7 +93,7 @@ module.exports = (app, channel) => {
                 event: "ADJUST_VIDEO_COMMENT_COUNT",
                 data: {
                     amount: -1,
-                    videoId: videoId
+                    videoId: comment.videoId
                 }
             }
             PushlishMSGNoReply(channel, msg, "video")
@@ -137,17 +153,4 @@ module.exports = (app, channel) => {
             next(error)
         }
     })
-    app.post("/create-comment", async (req, res, next) => {
-        try {
-            const channelId = req.body.channelId;
-            const videoId = req.body.videoId;
-            const parentId = req.body.parentId;
-            const content = req.body.content;
-            const comment = await service.createComment(videoId, channelId, parentId, content);
-            res.json(comment)
-        } catch (error) {
-            next(error)
-        }
-    })
-
-}
+     }

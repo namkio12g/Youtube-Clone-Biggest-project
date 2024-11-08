@@ -224,7 +224,7 @@ class uploadService {
         }
     }
 
-    async SubcribeEvent(payload) {
+    async SubscribeEvent(payload) {
         paylod = JSON.parse(payload)
         const {
             event,
@@ -238,18 +238,6 @@ class uploadService {
         switch (event) {
             case "UPLOAD_VIDEO":
                 await this.processsAndUploadCloud(file, resolutions)
-                break;
-            case "INCREASE_VIEW":
-                await this.increaseViews(google_id);
-                break;
-            case "ADD_HISTORY":
-                await this.addHistory(google_id, video_id);
-                break;
-            case "CHANGE_SUBCRIBECOUNT":
-                await this.changeSubcribeCount(google_id, flag);
-                break;
-            case "CHANGE_NOTIFICATION":
-                await this.ChangeNotification(google_id, flag);
                 break;
 
 

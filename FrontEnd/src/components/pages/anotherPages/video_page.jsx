@@ -1,4 +1,6 @@
 import React from "react";
+import { Link } from 'react-router-dom';
+
 import axios from "axios"
 import { useState,useEffect,useContext,useRef } from 'react'
 import { useNavigate, useParams  } from "react-router-dom";
@@ -47,16 +49,17 @@ const VideoPage = ()=>{
                 });
         setIsModalOpen(true);
     }
-    const handleSubcribeButton=async(e)=>{
+    const closeModal = () => setIsModalOpen(false);
+    const handleSubscribeButton=async(e)=>{
         if(user){
-            await axios.post(`/api/channel/subcribe-channel`,{channelId:user.id,channelSucribedId:channelMain._id})
+            await axios.post(`/api/channel/subscribe-channel`,{channelId:user.id,channelSucribedId:channelMain._id})
             .then(res=>{
                 if(res.data.addFlag)
-                    setLikeFavSub(prev=>({...prev,channelSubcribed:[...prev.channelSubcribed,channelMain._id]}))
+                    setLikeFavSub(prev=>({...prev,channelSubscribed:[...prev.channelSubscribed,channelMain._id]}))
                 else
                     setLikeFavSub(prev=>(
                 {...prev,
-                    channelSubcribed:prev.channelSubcribed.filter((item)=>item!==channelMain._id)
+                    channelSubscribed:prev.channelSubscribed.filter((item)=>item!==channelMain._id)
                 }
                 ))
             })
@@ -66,7 +69,7 @@ const VideoPage = ()=>{
         const rect = e.currentTarget.getBoundingClientRect();
         setModalUserUnknown(rect)
     }
-    const closeModal = () => setIsModalOpen(false);
+ 
     const handleLikedButton=async(e)=>{
         if(user){
             await axios.post(`/api/channel/add-videos-liked`,{id:user.id,videoId:videoMain._id})
@@ -137,7 +140,7 @@ const VideoPage = ()=>{
         if(user){
             async function fetchLikeSub() {
                 try {
-                    setLikeFavSub((await axios.get(`/api/channel/get-like-favourite-subcribe/${user?user.id:""}`)).data[0])
+                    setLikeFavSub((await axios.get(`/api/channel/get-like-favourite-subscribe/${user?user.id:""}`)).data[0])
                     } catch (error) {
                         console.log(error)
                     }
@@ -208,15 +211,19 @@ const VideoPage = ()=>{
                             <div className="bottom">
                                 <div className="left d-flex flex-row align-items-center justify-content-between mb-4 mt-2">
                                     <div className="d-flex flex-row align-items-center">
-                                        <img src={channelMain.profilePicture} alt="" className="channel-thumbnail me-3"/>
-                                        <div className="channel-info d-flex flex-column">
-                                            <span className="channel-title">{channelMain.title}
-                                                <FaCheck className="channel-icon ms-1"/>
-                                            </span>
-                                            <span className="subcriber-count">{channelMain.subcribersCount} subscribers</span>
+                                        <Link to={`/channel/${channelMain._id}`} style={{ textDecoration: 'none' }}>
+                                            <img src={channelMain.profilePicture} alt="" className="channel-thumbnail me-3"/>
+                                        </Link>
+                                        <div className="channel-info d-flex flex-column ">
+                                            <Link to={`/channel/${channelMain._id}`} style={{ textDecoration: 'none' }} >
+                                                <span className="channel-title d-flex flex-row align-items-center">{channelMain.title}
+                                                    <FaCheck className="channel-icon ms-2"/>
+                                                </span>
+                                            </Link>
+                                            <span className="subscriber-count">{channelMain.subscribersCount} subscribers</span>
                                         </div>
                                     </div>
-                                    <button onClick={handleSubcribeButton} className={`subscriber-button ${likeFavSub?(likeFavSub.channelSubcribed.includes(channelMain._id)?"active":""):""} ms-3`}>{likeFavSub?likeFavSub.channelSubcribed.includes(channelMain._id)?"Subcribed":"Subcribe":"Subcribe"}</button>
+                                    <button onClick={handleSubscribeButton} className={`subscriber-button ${likeFavSub?(likeFavSub.channelSubscribed.includes(channelMain._id)?"active":""):""} ms-3`}>{likeFavSub?likeFavSub.channelSubscribed.includes(channelMain._id)?"Subscribed":"Subscribe":"Subscribe"}</button>
                                 </div>
                                 <p>{videoMain.description}</p>
 

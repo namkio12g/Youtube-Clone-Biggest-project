@@ -4,7 +4,7 @@ const path = require('path');
 const multer = require('multer');
 
 const {
-    SubcribeMSG,
+    SubscribeMSG,
     PushlishMSGWithReply,
     PushlishMSGNoReply
 } = require("../untils/index.js")
@@ -28,7 +28,7 @@ if (!fs.existsSync('uploads')) {
 }
 module.exports=(app,channel)=>{
     const service = new uploadService();
-    SubcribeMSG(channel, service);
+    SubscribeMSG(channel, service);
     app.post("/changeImage", upload.single('file'), async (req, res, next) => {
         if (!req.file) {
             console.log("error")
@@ -69,16 +69,16 @@ module.exports=(app,channel)=>{
         const inputFile = req.file.path;
         if (req.body.videoId) {
         const qualities = [{
-                value: '1920x1080',
-                output: '1080p.mp4'
-            },
-            {
                 value: '1280x720',
                 output: '720p.mp4'
             },
             {
-                value: '720x480',
+                value: '854x480',
                 output: '480p.mp4'
+            },
+            {
+                value: '640x360',
+                output: '360p.mp4'
             }
         ];
         const [result, imagePath] = await Promise.all([

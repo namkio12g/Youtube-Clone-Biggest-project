@@ -123,7 +123,7 @@ class videoRepository {
               const videos = await videoModel.find(find).sort(sort).select(fields);
               return videos;
           }
-          const videos = await videoModel.find(find).sort(sort).skip(pagination * number).limit(number).select(fields);
+          const videos = await videoModel.find(find).sort(sort).skip(pagination *number).limit(number).select(fields);
           return videos;
       } catch (error) {
           throw error;
