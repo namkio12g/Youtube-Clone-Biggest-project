@@ -1,6 +1,6 @@
 # GET MORE DETAIL IN MY PORTFOLIO : https://namkio12g.github.io/portfolio/
 # Demo 
-https://inspired-youtube-clone-front-end.vercel.app/?vercelToolbarCode=e8eks3VlzVcWh2b
+https://inspired-youtube-clone-front-end.vercel.app
 
 # Progresss
 
